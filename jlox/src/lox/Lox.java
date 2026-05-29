@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class Lox {
+    static boolean hadError = false;
     public static void main(String[] args) throws IOException {
         if (args.length > 1) {
             System.err.println("Usage: jlox [script name]");
@@ -48,4 +49,14 @@ public class Lox {
             System.out.println(token);
         }
     }
+
+    static void error(int line, String message) {
+        report(line, "", message);
+    }
+    
+    private static void report(int line, String where, String message) {
+        System.err.println("[line " + line + "] Error" + where + ": " + message);
+        hadError = true;
+    }
+
 }

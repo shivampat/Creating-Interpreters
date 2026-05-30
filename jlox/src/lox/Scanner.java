@@ -82,6 +82,20 @@ public class Scanner {
                 if (match('/')) {
                     while (peek() != '\n' && !isAtEnd()) advance();
                 }
+                else if (match('*')) {
+                    while (peek() != '*' && peekNext() != '/' && !isAtEnd()) {
+                        if (peek() == '\n') line++;
+                        advance();
+                    }
+                    
+                    if (peek() == '*' && peekNext() == '/') {
+                        advance();
+                        advance();
+                    }
+                    else {
+                        Lox.error(line, "Unclosed comment!");
+                    }
+                }
                 else {
                     addToken(SLASH);
                 }
@@ -156,6 +170,7 @@ public class Scanner {
 
         if (isAtEnd()) {
             Lox.error(line, "Unterminated string!");
+            return;
         }
 
         // closing "

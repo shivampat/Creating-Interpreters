@@ -1,10 +1,11 @@
-package lox;
+package com.shivam.lox;
+
+import static com.shivam.lox.TokenType.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import static lox.TokenType.*;
 
 
 

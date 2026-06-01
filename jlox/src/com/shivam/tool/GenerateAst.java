@@ -38,7 +38,7 @@ public class GenerateAst {
         }
 
         writer.println();
-        writer.println("\tabstract <R> R accept(Visitor<R> visitor);")
+        writer.println("\tabstract <R> R accept(Visitor<R> visitor);");
 
         writer.println("}");
         writer.close();
@@ -56,7 +56,7 @@ public class GenerateAst {
     }
 
     private static void defineType(PrintWriter writer, String baseName, String className, String fields) throws IOException {
-        writer.println("\tpublic class " + className + " implements " + baseName + " {");
+        writer.println("\tpublic class " + className + " extends "  + baseName + " {");
         writer.println("\t\t" + className + "(" + fields + ") {");
 
         for (String field : fields.split(",")) {
@@ -69,13 +69,16 @@ public class GenerateAst {
 
         writer.println("\t\t@Override");
         writer.println("\t\t<R> R accept(Visitor<R> visitor) {");
-        writer.println("\t\t<R> R accept(Visitor<R> visitor) {");
 
+        // Add behavior for accept method 
+        writer.println("\t\t\treturn visitor.visit" + className + baseName + "(this);");
         
+        writer.println("\t\t}");
         for (String field : fields.split(",")) {
             writer.println("\t\tfinal " + field.trim() + ";");
         }
 
+        writer.println();
         writer.println("\t}");
         writer.println();
     }

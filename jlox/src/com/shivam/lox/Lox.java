@@ -44,11 +44,17 @@ public class Lox {
         Scanner scanner = new Scanner(statement);    
         List<Token> tokens = scanner.scanTokens();      
 
-        // Remove once actually implemented 
-        // For now just print all tokens
-        for (Token token : tokens) {
-            System.out.println(token);
-        }
+        // // Remove once actually implemented 
+        // // For now just print all tokens
+        // for (Token token : tokens) {
+        //     System.out.println(token);
+        // }
+        Parser parser = new Parser(tokens);
+        Expr expression = parser.parse();
+
+        if (hadError) return;
+
+        System.out.println(new AstPrinter().print(expression));
     }
 
     static void error(Token token, String message) {

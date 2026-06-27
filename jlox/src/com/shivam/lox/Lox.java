@@ -57,6 +57,10 @@ public class Lox {
         else
             report(token.lineNum, " at '" + token.lexeme + "'", message);
     }
+
+    static void error(int linenum, String message) {
+        report(linenum, "", message);
+    }
     
     private static void report(int line, String where, String message) {
         System.err.println("[line " + line + "] Error" + where + ": " + message);

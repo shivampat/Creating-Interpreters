@@ -8,6 +8,9 @@ class Parser {
     private final List<Token> tokens;
     private int current = 0;
 
+
+    private static class ParseError extends RuntimeException {}
+
     public Parser(List<Token> tokens) {
         this.tokens = tokens;
     }
@@ -79,22 +82,55 @@ class Parser {
             return new Expr.Literal(true);
         if (match(NIL))
             return new Expr.Literal(null);
-
         if (match(NUMBER, STRING)) {
             return new Expr.Literal(previous().literal);
         }
-
         if (match(L_PAREN)) {
             Expr expr = expression();
             consume(R_PAREN, "Expect ')' after expression.");
             return new Expr.Grouping(expr);
         }
+
+        throw error(peek(), "Expect an expression.");
     }
 
-    private void consume(TokenType type, String errorMessage) {
-        if (peek().type == type) advance();
-        else
-            Lox.error(peek().lineNum, errorMessage);
+    Expr parse() {
+        try {
+            return expression();
+        } 
+        catch (ParseError error) {
+            return null;
+        }
+    }
+    
+    private void synchronize() {
+        advance();
+
+        while (!isAtEnd()) {
+            if (previous().type == SEMICOLON) return;
+
+            switch(peek().type) {
+                case CLASS:
+                case FUN:
+                case VAR:
+                case IF:
+                case PRINT:
+                case RETURN:
+                    return;
+            }
+
+            advance();
+        }
+    }
+
+    private Token consume(TokenType type, String errorMessage) {
+        if (check(type)) return advance();
+        throw error(peek(), errorMessage);
+    }
+
+    private ParseError error(Token token, String errorMessage) {
+        Lox.error(token, errorMessage);
+        return new ParseError();
     }
 
     private boolean match(TokenType... types) {

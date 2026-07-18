@@ -47,6 +47,12 @@ class Parser {
     }
 
     private Expr equality() {
+        if (match(EXCL_EQUAL, EQUAL_EQUAL)) {
+            Token operator = previous();
+            comparison();
+            throw error(operator, "Expected comparison before " + operator.lexeme + " operator.");
+        }
+
         Expr left = comparison();
 
         while (match(EXCL_EQUAL, EQUAL_EQUAL)) {
@@ -59,6 +65,12 @@ class Parser {
     }
 
     private Expr comparison() {
+        if (match(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL)) {
+            Token operator = previous();
+            term();
+            throw error(operator, "Expected term before " + operator.lexeme + " operator.");
+        }
+
         Expr left = term();
 
         while (match(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL)) {
@@ -71,11 +83,18 @@ class Parser {
     }
 
     private Expr term() {
+        if (match(PLUS)) {
+            Token operator = previous();
+            factor();
+            throw error(operator, "Expected factor before " + operator.lexeme + " operator.");
+        }
+
         Expr left = factor();
 
         while (match(MINUS, PLUS)) {
             Token operator = previous();
             Expr right = factor();
+
             left = new Expr.Binary(left, operator, right);
         }
 
@@ -83,6 +102,12 @@ class Parser {
     }
 
     private Expr factor() {
+        if (match(SLASH, STAR)) {
+            Token operator = previous();
+            unary();
+            throw error(operator, "Expected unary before " + operator.lexeme + " operator.");
+        }
+
         Expr left = unary();
 
         while (match(SLASH, STAR)) {
@@ -119,6 +144,7 @@ class Parser {
         }
 
         throw error(peek(), "Expect an expression.");
+        // return null; // return null expression if token not found.
     }
 
     Expr parse() {

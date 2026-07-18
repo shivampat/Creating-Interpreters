@@ -6,6 +6,7 @@ enum TokenType {
     L_BRACKET, R_BRACKET,
     L_BRACE, R_BRACE,
     COMMA, PERIOD, PLUS, MINUS, SEMICOLON, SLASH, STAR,
+    QUESTION_MARK, COLON,
 
     // Comparatives
     EXCL, EXCL_EQUAL,

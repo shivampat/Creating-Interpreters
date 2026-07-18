@@ -15,6 +15,33 @@ class Parser {
         this.tokens = tokens;
     }
 
+    private Expr comma() {
+        Expr left = ternary();
+
+        while (match(COMMA)) {
+            Token operator = previous();
+            Expr right = ternary();
+            left = new Expr.Binary(left, operator, right);
+        }
+
+        return left;
+    }
+
+    private Expr ternary() {
+        // a ? b : c
+        Expr a = expression();
+
+        if (match(QUESTION_MARK)) {
+            Token ternTok = previous();
+            Expr b = ternary();
+            consume(COLON, "Expected : after ? to complete ternary operator.");
+            Expr c = ternary();
+            a = new Expr.Ternary(a, ternTok, b, c);
+        }
+
+        return a;
+    }
+
     private Expr expression() {
         return equality();
     }
@@ -96,7 +123,7 @@ class Parser {
 
     Expr parse() {
         try {
-            return expression();
+            return comma();
         } 
         catch (ParseError error) {
             return null;

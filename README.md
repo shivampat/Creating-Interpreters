@@ -6,7 +6,7 @@ Currently, I am working on the Java implementation of the Lox programming langua
 
 To compile, run
 ```
-java -d bin/ src/com/shivam/lox/*.java
+javac -d bin/ src/com/shivam/lox/*.java
 java -cp bin/ com.shivam.lox.Lox
 ```
 

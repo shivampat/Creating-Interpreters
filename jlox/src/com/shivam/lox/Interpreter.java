@@ -124,18 +124,13 @@ public class Interpreter implements Expr.Visitor<Object> {
     @Override
     public Object visitTernaryExpr(Ternary expr) {
         Object condition = evaluate(expr.condition);
-        Object true_clause = evaluate(expr.trueExpr);
-        Object else_clause = evaluate(expr.elseExpr);
-        Token quesToken = expr.questTok;
 
-        if (!isTruthy(condition))
-            throw new RuntimeError(quesToken, "Condition in ternary expression must be boolean!");
-        
-        if ((Boolean) condition) {
-            return true_clause;
+        if (isTruthy(condition)) {
+            return evaluate(expr.trueExpr);
         }
-
-        return else_clause;
+        else {
+            return evaluate(expr.elseExpr);
+        }
     }
 
     void interpret(Expr expression) {

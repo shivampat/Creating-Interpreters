@@ -9,10 +9,13 @@ import com.shivam.lox.Expr.Grouping;
 import com.shivam.lox.Expr.Literal;
 import com.shivam.lox.Expr.Ternary;
 import com.shivam.lox.Expr.Unary;
+import com.shivam.lox.Expr.Variable;
 import com.shivam.lox.Stmt.Expression;
 import com.shivam.lox.Stmt.Print;
+import com.shivam.lox.Stmt.Var;
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
+    private Environment env = new Environment();
 
     @Override
     public Object visitBinaryExpr(Binary expr) {
@@ -212,5 +215,22 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         Object val = evaluate(stmt.expression);
         System.out.println(stringify(val));
         return null;
+    }
+
+    @Override
+    public Void visitVarStmt(Var stmt) {
+        Object value = null;
+
+        if (stmt.initializer != null) {
+            value = evaluate(stmt.initializer);
+        }
+        
+        env.define(stmt.name.lexeme, value);
+        return null;
+    }
+
+    @Override
+    public Object visitVariableExpr(Variable expr) {
+        return env.get(expr.name);
     }
 }

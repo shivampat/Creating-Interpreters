@@ -11,6 +11,7 @@ import java.util.List;
 public class Lox {
     static boolean hadError = false;
     static boolean hadRuntimeError = false;
+    static Interpreter interpreter = new Interpreter();
     public static void main(String[] args) throws IOException {
         if (args.length > 1) {
             System.err.println("Usage: jlox [script name]");
@@ -50,7 +51,6 @@ public class Lox {
 
         Parser parser = new Parser(tokens);
         List<Stmt> statements = parser.parse();
-        Interpreter interpreter = new Interpreter();
 
         if (hadError) return;
 

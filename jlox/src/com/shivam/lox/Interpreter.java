@@ -2,13 +2,17 @@ package com.shivam.lox;
 
 import static com.shivam.lox.TokenType.*;
 
+import java.util.List;
+
 import com.shivam.lox.Expr.Binary;
 import com.shivam.lox.Expr.Grouping;
 import com.shivam.lox.Expr.Literal;
 import com.shivam.lox.Expr.Ternary;
 import com.shivam.lox.Expr.Unary;
+import com.shivam.lox.Stmt.Expression;
+import com.shivam.lox.Stmt.Print;
 
-public class Interpreter implements Expr.Visitor<Object> {
+public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
 
     @Override
     public Object visitBinaryExpr(Binary expr) {
@@ -142,6 +146,21 @@ public class Interpreter implements Expr.Visitor<Object> {
         }
     }
 
+    void interpret(List<Stmt> statements) {
+        try {
+            for (Stmt stmt : statements) {
+                execute(stmt);
+            }
+        }
+        catch (RuntimeError re) {
+            Lox.runtimeError(re);
+        }
+    }
+
+    private void execute(Stmt stmt) {
+        stmt.accept(this);
+    }
+
     private Object evaluate(Expr expr) {
         return expr.accept(this);
     }
@@ -180,5 +199,18 @@ public class Interpreter implements Expr.Visitor<Object> {
     private void checkNumberOperands(Token operator, Object l_operand, Object r_operand) {
         if ((l_operand instanceof Double) && (r_operand instanceof Double)) return;
         throw new RuntimeError(operator, "Operands must be a number!");
+    }
+
+    @Override
+    public Void visitExpressionStmt(Expression stmt) {
+        evaluate(stmt.expression);
+        return null;
+    }
+
+    @Override
+    public Void visitPrintStmt(Print stmt) {
+        Object val = evaluate(stmt.expression);
+        System.out.println(stringify(val));
+        return null;
     }
 }

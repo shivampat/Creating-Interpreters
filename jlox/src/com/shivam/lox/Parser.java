@@ -1,5 +1,6 @@
 package com.shivam.lox;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.shivam.lox.TokenType.*;
@@ -137,6 +138,8 @@ class Parser {
         if (match(NUMBER, STRING)) {
             return new Expr.Literal(previous().literal);
         }
+        if (match(IDENTIFIER))
+            return new Expr.Variable(previous());
         if (match(L_PAREN)) {
             Expr expr = expression();
             consume(R_PAREN, "Expect ')' after expression.");
@@ -147,13 +150,64 @@ class Parser {
         // return null; // return null expression if token not found.
     }
 
-    Expr parse() {
+    // Expr parse() {
+    //     try {
+    //         return comma();
+    //     } 
+    //     catch (ParseError error) {
+    //         return null;
+    //     }
+    // }
+
+    List<Stmt> parse() {
+        List<Stmt> statements = new ArrayList<>();
+        while (!isAtEnd()) {
+            statements.add(declaration());
+        }
+
+        return statements;
+    }
+
+    private Stmt declaration() {
         try {
-            return comma();
-        } 
-        catch (ParseError error) {
+            if (match(VAR)) return varDeclaration();
+            return statement();
+        }
+        catch (ParseError pe) {
+            synchronize();
             return null;
         }
+
+    }
+
+    private Stmt statement() {
+        if (match(PRINT)) return printStatement();
+
+        return expressionStatement();
+    }
+
+    private Stmt varDeclaration() {
+        Token name = consume(IDENTIFIER, "Expect variable name after 'var' keyword!");
+
+        Expr initializer = null;
+        if (match(EQUAL)) {
+            initializer = comma();
+        }
+        
+        consume(SEMICOLON, "Expect ; after variable declaration statement.");
+        return new Stmt.Var(name, initializer);
+    }
+
+    private Stmt printStatement() {
+        Expr expression = expression();
+        consume(SEMICOLON, "Expect ; at the end of expression!");
+        return new Stmt.Print(expression);
+    }
+
+    private Stmt expressionStatement() {
+        Expr expression = expression();
+        consume(SEMICOLON, "Expect ; at the end of expression!");
+        return new Stmt.Expression(expression);
     }
     
     private void synchronize() {

@@ -13,10 +13,18 @@ public class GenerateAst {
 
         String dirName = args[0];
         defineAst(dirName, "Expr", Arrays.asList(
-        "Binary   : Expr left, Token operator, Expr right",
+            "Binary   : Expr left, Token operator, Expr right",
             "Grouping : Expr expression",
             "Literal  : Object value",
-            "Unary    : Token operator, Expr right"
+            "Unary    : Token operator, Expr right",
+            "Ternary  : Expr condition, Token questTok, Expr trueExpr, Expr elseExpr",
+            "Variable : Token name"
+        ));
+
+        defineAst(dirName, "Stmt", Arrays.asList(
+            "Expression : Expr expression",
+            "Print : Expr expression",
+            "Var : Token name, Expr initializer" // initializer = (var x = INITIALIZER;), otherwise null if (var x;)
         ));
     }
 
@@ -56,7 +64,7 @@ public class GenerateAst {
     }
 
     private static void defineType(PrintWriter writer, String baseName, String className, String fields) throws IOException {
-        writer.println("\tpublic class " + className + " extends "  + baseName + " {");
+        writer.println("\tpublic static class " + className + " extends "  + baseName + " {");
         writer.println("\t\t" + className + "(" + fields + ") {");
 
         for (String field : fields.split(",")) {

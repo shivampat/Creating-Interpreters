@@ -8,8 +8,9 @@ abstract class Expr {
 		R visitLiteralExpr(Literal expr);
 		R visitUnaryExpr(Unary expr);
 		R visitTernaryExpr(Ternary expr);
+		R visitVariableExpr(Variable expr);
 	}
-	static class Binary extends Expr {
+	public static class Binary extends Expr {
 		Binary(Expr left, Token operator, Expr right) {
 			this.left = left;
 			this.operator = operator;
@@ -26,7 +27,7 @@ abstract class Expr {
 
 	}
 
-	static class Grouping extends Expr {
+	public static class Grouping extends Expr {
 		Grouping(Expr expression) {
 			this.expression = expression;
 		}
@@ -39,7 +40,7 @@ abstract class Expr {
 
 	}
 
-	static class Literal extends Expr {
+	public static class Literal extends Expr {
 		Literal(Object value) {
 			this.value = value;
 		}
@@ -52,7 +53,7 @@ abstract class Expr {
 
 	}
 
-	static class Unary extends Expr {
+	public static class Unary extends Expr {
 		Unary(Token operator, Expr right) {
 			this.operator = operator;
 			this.right = right;
@@ -67,7 +68,7 @@ abstract class Expr {
 
 	}
 
-	static class Ternary extends Expr {
+	public static class Ternary extends Expr {
 		Ternary(Expr condition, Token questTok, Expr trueExpr, Expr elseExpr) {
 			this.condition = condition;
 			this.questTok = questTok;
@@ -79,11 +80,24 @@ abstract class Expr {
 		<R> R accept(Visitor<R> visitor) {
 			return visitor.visitTernaryExpr(this);
 		}
-
 		final Expr condition;
+		final Token questTok;
 		final Expr trueExpr;
 		final Expr elseExpr;
-		final Token questTok;
+
+	}
+
+	public static class Variable extends Expr {
+		Variable(Token name) {
+			this.name = name;
+		}
+
+		@Override
+		<R> R accept(Visitor<R> visitor) {
+			return visitor.visitVariableExpr(this);
+		}
+		final Token name;
+
 	}
 
 

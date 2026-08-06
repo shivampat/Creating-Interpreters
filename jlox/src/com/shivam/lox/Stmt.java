@@ -3,10 +3,24 @@ package com.shivam.lox;
 import java.util.List;
 abstract class Stmt {
 	interface Visitor<R> {
+		R visitBlockStmt(Block stmt);
 		R visitExpressionStmt(Expression stmt);
 		R visitPrintStmt(Print stmt);
 		R visitVarStmt(Var stmt);
 	}
+	public static class Block extends Stmt {
+		Block(List<Stmt> statements) {
+			this.statements = statements;
+		}
+
+		@Override
+		<R> R accept(Visitor<R> visitor) {
+			return visitor.visitBlockStmt(this);
+		}
+		final List<Stmt> statements;
+
+	}
+
 	public static class Expression extends Stmt {
 		Expression(Expr expression) {
 			this.expression = expression;

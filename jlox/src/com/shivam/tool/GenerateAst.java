@@ -23,6 +23,7 @@ public class GenerateAst {
         ));
 
         defineAst(dirName, "Stmt", Arrays.asList(
+            "Block: List<Stmt> statements",
             "Expression : Expr expression",
             "Print : Expr expression",
             "Var : Token name, Expr initializer" // initializer = (var x = INITIALIZER;), otherwise null if (var x;)

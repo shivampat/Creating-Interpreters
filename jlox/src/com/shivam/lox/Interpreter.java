@@ -11,6 +11,7 @@ import com.shivam.lox.Expr.Literal;
 import com.shivam.lox.Expr.Ternary;
 import com.shivam.lox.Expr.Unary;
 import com.shivam.lox.Expr.Variable;
+import com.shivam.lox.Stmt.Block;
 import com.shivam.lox.Stmt.Expression;
 import com.shivam.lox.Stmt.Print;
 import com.shivam.lox.Stmt.Var;
@@ -244,5 +245,15 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         Object val = evaluate(expr.val);
         env.assign(expr.name, val);
         return val;
+    }
+
+    @Override
+    public Void visitBlockStmt(Block stmt) {
+        executeBlock(stmt, new Environment(env));
+        return null;
+    }
+
+    private void executeBlock(Block stmt, Environment environment) {
+
     }
 }

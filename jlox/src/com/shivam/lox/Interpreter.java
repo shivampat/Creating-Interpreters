@@ -4,6 +4,7 @@ import static com.shivam.lox.TokenType.*;
 
 import java.util.List;
 
+import com.shivam.lox.Expr.Assign;
 import com.shivam.lox.Expr.Binary;
 import com.shivam.lox.Expr.Grouping;
 import com.shivam.lox.Expr.Literal;
@@ -236,5 +237,12 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     @Override
     public Object visitVariableExpr(Variable expr) {
         return env.get(expr.name);
+    }
+
+    @Override
+    public Object visitAssignExpr(Assign expr) {
+        Object val = evaluate(expr.val);
+        env.assign(expr.name, val);
+        return val;
     }
 }

@@ -44,7 +44,7 @@ class Parser {
     }
 
     private Expr expression() {
-        return equality();
+        return assignment();
     }
 
     private Expr equality() {
@@ -209,6 +209,25 @@ class Parser {
         consume(SEMICOLON, "Expect ; at the end of expression!");
         return new Stmt.Expression(expression);
     }
+
+    private Expr assignment() {
+        Expr lval = equality();
+
+        if (match(EQUAL)) {
+            Token equals = previous();
+            Expr rval = equality();
+
+            if (lval instanceof Expr.Variable) {
+                Token name = ((Expr.Variable) lval).name;
+                return new Expr.Assign(name, rval);
+            }
+
+            error(equals, "Invalid assignment target.");
+        }
+
+        return lval;
+    }
+
     
     private void synchronize() {
         advance();

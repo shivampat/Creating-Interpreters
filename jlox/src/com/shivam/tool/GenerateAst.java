@@ -16,6 +16,7 @@ public class GenerateAst {
             "Binary   : Expr left, Token operator, Expr right",
             "Grouping : Expr expression",
             "Literal  : Object value",
+            "Assign   : Token name, Expr val",
             "Unary    : Token operator, Expr right",
             "Ternary  : Expr condition, Token questTok, Expr trueExpr, Expr elseExpr",
             "Variable : Token name"

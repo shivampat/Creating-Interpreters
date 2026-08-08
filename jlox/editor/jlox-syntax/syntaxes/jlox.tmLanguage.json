@@ -1,0 +1,102 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "jlox",
+  "scopeName": "source.jlox",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#strings" },
+    { "include": "#numbers" },
+    { "include": "#declarations" },
+    { "include": "#keywords" },
+    { "include": "#constants" },
+    { "include": "#language-variables" },
+    { "include": "#operators" },
+    { "include": "#punctuation" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.jlox",
+          "match": "//.*$"
+        },
+        {
+          "name": "comment.block.jlox",
+          "begin": "/\\*",
+          "end": "\\*/"
+        }
+      ]
+    },
+    "strings": {
+      "name": "string.quoted.double.jlox",
+      "begin": "\"",
+      "end": "\""
+    },
+    "numbers": {
+      "name": "constant.numeric.jlox",
+      "match": "\\b\\d+(\\.\\d+)?\\b"
+    },
+    "declarations": {
+      "patterns": [
+        {
+          "match": "\\b(class)\\s+([A-Za-z_][A-Za-z0-9_]*)\\b",
+          "captures": {
+            "1": { "name": "storage.type.class.jlox" },
+            "2": { "name": "entity.name.type.class.jlox" }
+          }
+        },
+        {
+          "match": "\\b(fun)\\s+([A-Za-z_][A-Za-z0-9_]*)\\b",
+          "captures": {
+            "1": { "name": "storage.type.function.jlox" },
+            "2": { "name": "entity.name.function.jlox" }
+          }
+        },
+        {
+          "name": "storage.type.jlox",
+          "match": "\\bvar\\b"
+        }
+      ]
+    },
+    "keywords": {
+      "name": "keyword.control.jlox",
+      "match": "\\b(and|or|if|else|for|while|return|print|class|fun)\\b"
+    },
+    "constants": {
+      "name": "constant.language.jlox",
+      "match": "\\b(true|false|nil)\\b"
+    },
+    "language-variables": {
+      "name": "variable.language.jlox",
+      "match": "\\b(this|super)\\b"
+    },
+    "operators": {
+      "name": "keyword.operator.jlox",
+      "match": "==|!=|<=|>=|=|<|>|!|\\+|-|\\*|/|\\?|:"
+    },
+    "punctuation": {
+      "patterns": [
+        {
+          "name": "punctuation.terminator.statement.jlox",
+          "match": ";"
+        },
+        {
+          "name": "punctuation.separator.comma.jlox",
+          "match": ","
+        },
+        {
+          "name": "punctuation.accessor.jlox",
+          "match": "\\."
+        },
+        {
+          "name": "punctuation.section.braces.jlox",
+          "match": "[{}]"
+        },
+        {
+          "name": "punctuation.section.parens.jlox",
+          "match": "[()]"
+        }
+      ]
+    }
+  }
+}

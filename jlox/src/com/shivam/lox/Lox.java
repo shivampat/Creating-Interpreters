@@ -18,7 +18,7 @@ public class Lox {
             System.exit(1);
         }
         else if (args.length == 1) {
-            runFile(args[1]);
+            runFile(args[0]);
         }
         else {
             runPrompt();

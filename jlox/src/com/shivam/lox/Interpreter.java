@@ -249,11 +249,24 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
 
     @Override
     public Void visitBlockStmt(Block stmt) {
-        executeBlock(stmt, new Environment(env));
+        executeBlock(stmt.statements, new Environment(env));
         return null;
     }
 
-    private void executeBlock(Block stmt, Environment environment) {
+    private void executeBlock(List<Stmt> statements, Environment environment) {
+        // we swap the object environment to make it easier to write new visitor methods and reduce how much code we would have to change
+        Environment previous = this.env;
 
+        try {
+            this.env = environment;
+
+            for (Stmt stmt : statements) {
+                execute(stmt); 
+            }
+        }
+        finally {
+            // restores previous env even in the event of an exception
+            this.env = previous;
+        }
     }
 }

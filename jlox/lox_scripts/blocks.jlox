@@ -1,0 +1,11 @@
+var x = 1;
+var y = 2;
+print "x + y:";
+print x + y;
+{
+    var z = 3;
+    print "x + z:";
+    print x + z;
+    print "z + y:";
+    print z + y;
+}

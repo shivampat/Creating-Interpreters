@@ -1,0 +1,27 @@
+{
+  "name": "jlox-syntax",
+  "displayName": "jlox Syntax Highlighting",
+  "description": "Syntax highlighting for jlox (.jlox / .lox) files",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": ["Programming Languages"],
+  "contributes": {
+    "languages": [
+      {
+        "id": "jlox",
+        "aliases": ["jlox", "Lox"],
+        "extensions": [".jlox", ".lox"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "jlox",
+        "scopeName": "source.jlox",
+        "path": "./syntaxes/jlox.tmLanguage.json"
+      }
+    ]
+  }
+}

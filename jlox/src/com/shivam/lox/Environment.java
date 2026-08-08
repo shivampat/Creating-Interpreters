@@ -20,8 +20,13 @@ public class Environment {
     }
 
     Object get(Token name) {
-        if (values.containsKey(name.lexeme))
-            return values.get(name.lexeme);
+        if (values.containsKey(name.lexeme)) {
+            if (values.get(name.lexeme) != null) {
+                return values.get(name.lexeme);
+            }
+
+            throw new RuntimeError(name, "Cannot access variable '" + name.lexeme + "' before it has been initialized!");
+        }
         
         if (enclosing != null) return enclosing.get(name);
 

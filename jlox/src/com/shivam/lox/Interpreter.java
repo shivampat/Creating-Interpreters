@@ -13,6 +13,7 @@ import com.shivam.lox.Expr.Unary;
 import com.shivam.lox.Expr.Variable;
 import com.shivam.lox.Stmt.Block;
 import com.shivam.lox.Stmt.Expression;
+import com.shivam.lox.Stmt.If;
 import com.shivam.lox.Stmt.Print;
 import com.shivam.lox.Stmt.Var;
 
@@ -268,5 +269,16 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             // restores previous env even in the event of an exception
             this.env = previous;
         }
+    }
+
+    @Override
+    public Void visitIfStmt(If stmt) {
+        if (isTruthy(evaluate(stmt.condition))) {
+            execute(stmt.thenBranch);
+        }
+        else if (stmt.elseBranch != null) {
+            execute(stmt.elseBranch);
+        }
+        return null;
     }
 }

@@ -182,9 +182,23 @@ class Parser {
 
     private Stmt statement() {
         if (match(PRINT)) return printStatement();
+        if (match(IF)) return ifStatement();
         if (match(L_BRACE)) return new Stmt.Block(block());
 
         return expressionStatement();
+    }
+
+    private Stmt ifStatement() {
+        consume(L_PAREN, "Expected ( after if statement!");
+        Expr condition = expression();
+        consume(R_PAREN, "Expected ) after if statement condition!");
+
+        Stmt thenBranch = statement();
+        Stmt elseBranch = null;
+
+        if (match(ELSE)) elseBranch = statement();
+
+        return new Stmt.If(condition, thenBranch, elseBranch);
     }
 
     private Stmt varDeclaration() {

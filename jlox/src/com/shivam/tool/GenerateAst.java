@@ -14,6 +14,7 @@ public class GenerateAst {
         String dirName = args[0];
         defineAst(dirName, "Expr", Arrays.asList(
             "Binary   : Expr left, Token operator, Expr right",
+            "Logical  : Expr left, Token operator, Expr right",
             "Grouping : Expr expression",
             "Literal  : Object value",
             "Assign   : Token name, Expr val",
@@ -27,6 +28,7 @@ public class GenerateAst {
             "Expression : Expr expression",
             "Print : Expr expression",
             "If : Expr condition, Stmt thenBranch, Stmt elseBranch",
+            "While : Expr condition, Stmt body",
             "Var : Token name, Expr initializer" // initializer = (var x = INITIALIZER;), otherwise null if (var x;)
         ));
     }

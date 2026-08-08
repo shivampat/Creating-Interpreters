@@ -182,10 +182,22 @@ class Parser {
 
     private Stmt statement() {
         if (match(PRINT)) return printStatement();
+        if (match(WHILE)) return whileStatement();
         if (match(IF)) return ifStatement();
         if (match(L_BRACE)) return new Stmt.Block(block());
 
         return expressionStatement();
+    }
+
+    private Stmt whileStatement() {
+        consume(L_PAREN, "Expected ( after if statement!");
+        Expr condition = expression();
+        consume(R_PAREN, "Expected ) after if statement condition!");
+
+        Stmt body = statement();
+
+        return new Stmt.While(condition, body);
+
     }
 
     private Stmt ifStatement() {
@@ -237,11 +249,11 @@ class Parser {
     }
 
     private Expr assignment() {
-        Expr lval = equality();
+        Expr lval = or();
 
         if (match(EQUAL)) {
             Token equals = previous();
-            Expr rval = equality();
+            Expr rval = or();
 
             if (lval instanceof Expr.Variable) {
                 Token name = ((Expr.Variable) lval).name;
@@ -252,6 +264,30 @@ class Parser {
         }
 
         return lval;
+    }
+
+    private Expr or() {
+        Expr left = and();
+        
+        while (match(OR)) {
+            Token operator = previous();
+            Expr right = and();
+            left = new Expr.Logical(left, operator, right);
+        }
+
+        return left;
+    }
+
+    private Expr and() {
+        Expr left = equality();
+
+        while (match(AND)) {
+            Token operator = previous();
+            Expr right = equality();
+            left = new Expr.Logical(left, operator, right);
+        }
+
+        return left;
     }
 
     

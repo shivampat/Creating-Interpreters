@@ -8,6 +8,7 @@ import com.shivam.lox.Expr.Assign;
 import com.shivam.lox.Expr.Binary;
 import com.shivam.lox.Expr.Grouping;
 import com.shivam.lox.Expr.Literal;
+import com.shivam.lox.Expr.Logical;
 import com.shivam.lox.Expr.Ternary;
 import com.shivam.lox.Expr.Unary;
 import com.shivam.lox.Expr.Variable;
@@ -16,6 +17,7 @@ import com.shivam.lox.Stmt.Expression;
 import com.shivam.lox.Stmt.If;
 import com.shivam.lox.Stmt.Print;
 import com.shivam.lox.Stmt.Var;
+import com.shivam.lox.Stmt.While;
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     private Environment env = new Environment();
@@ -279,6 +281,32 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         else if (stmt.elseBranch != null) {
             execute(stmt.elseBranch);
         }
+        return null;
+    }
+
+    @Override
+    public Object visitLogicalExpr(Logical expr) {
+        Object left = evaluate(expr.left);
+        // Since Lox is dynamically typed, we return the actual object instead of purely a boolean value.
+
+        if (expr.operator.type == OR) {
+            if (isTruthy(left)) return left;
+            // if not truthy, we evaluate the right side
+        }
+        // and
+        else {
+            if (!isTruthy(left)) return left;
+        }
+
+        return evaluate(expr.right);
+    }
+
+    @Override
+    public Void visitWhileStmt(While stmt) {
+        while (isTruthy(evaluate(stmt.condition))) {
+            execute(stmt.body);
+        }
+
         return null;
     }
 }

@@ -13,6 +13,8 @@ import com.shivam.lox.Expr.Ternary;
 import com.shivam.lox.Expr.Unary;
 import com.shivam.lox.Expr.Variable;
 import com.shivam.lox.Stmt.Block;
+import com.shivam.lox.Stmt.Break;
+import com.shivam.lox.Stmt.Continue;
 import com.shivam.lox.Stmt.Expression;
 import com.shivam.lox.Stmt.If;
 import com.shivam.lox.Stmt.Print;
@@ -21,6 +23,8 @@ import com.shivam.lox.Stmt.While;
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     private Environment env = new Environment();
+    private boolean breakFound = false;
+    private boolean continueFound = false;
 
     @Override
     public Object visitBinaryExpr(Binary expr) {
@@ -264,12 +268,14 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             this.env = environment;
 
             for (Stmt stmt : statements) {
-                execute(stmt); 
+                execute(stmt);
+                if (continueFound || breakFound) break;
             }
         }
         finally {
             // restores previous env even in the event of an exception
             this.env = previous;
+            this.continueFound = false; // reset continue if continue found
         }
     }
 
@@ -303,10 +309,24 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
 
     @Override
     public Void visitWhileStmt(While stmt) {
-        while (isTruthy(evaluate(stmt.condition))) {
+        while (isTruthy(evaluate(stmt.condition)) && !breakFound) {
             execute(stmt.body);
         }
 
+        breakFound = false;
+
+        return null;
+    }
+
+    @Override
+    public Void visitBreakStmt(Break stmt) {
+        breakFound = true;
+        return null;
+    }
+
+    @Override
+    public Void visitContinueStmt(Continue stmt) {
+        continueFound = true;
         return null;
     }
 }

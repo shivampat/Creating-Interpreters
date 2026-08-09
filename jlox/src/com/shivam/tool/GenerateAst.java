@@ -29,6 +29,8 @@ public class GenerateAst {
             "Print : Expr expression",
             "If : Expr condition, Stmt thenBranch, Stmt elseBranch",
             "While : Expr condition, Stmt body",
+            "Break : Token breakTok",
+            "Continue : Token contTok",
             "Var : Token name, Expr initializer" // initializer = (var x = INITIALIZER;), otherwise null if (var x;)
         ));
     }

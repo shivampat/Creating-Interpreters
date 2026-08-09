@@ -1,13 +1,17 @@
 package com.shivam.lox;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import com.shivam.lox.Expr.Literal;
 
 import static com.shivam.lox.TokenType.*;
 
 class Parser {
     private final List<Token> tokens;
     private int current = 0;
+    private boolean inLoop = false;
 
 
     private static class ParseError extends RuntimeException {}
@@ -182,11 +186,96 @@ class Parser {
 
     private Stmt statement() {
         if (match(PRINT)) return printStatement();
-        if (match(WHILE)) return whileStatement();
+
+        boolean prev = inLoop;
+        inLoop = true;
+
+        try {
+            if (match(WHILE)) return whileStatement();
+            if (match(FOR)) return forStatement();
+        }
+        finally {
+            inLoop = prev;
+        }
+
+
         if (match(IF)) return ifStatement();
+        if (match(BREAK)) return breakStatement();
+        if (match(CONTINUE)) return continueStatement();
         if (match(L_BRACE)) return new Stmt.Block(block());
 
         return expressionStatement();
+    }
+
+    private Stmt breakStatement() {
+        Token breakTok = previous();
+        if (inLoop){
+            consume(SEMICOLON, "Expect ; after break statement.");
+            return new Stmt.Break(breakTok);
+        }
+        
+        throw error(breakTok, "Cannot have a break statement that is not in a loop!");
+    }
+
+    private Stmt continueStatement() {
+        Token continueTok = previous();
+        if (inLoop) {
+            consume(SEMICOLON, "Expect ; after continue statement.");
+            return new Stmt.Continue(continueTok);
+        }
+
+        throw error(continueTok, "Cannot have a continue statement that is not in a loop!");
+    }
+
+    private Stmt forStatement() {
+        consume(L_PAREN, "Expected ( after if statement!");
+        Stmt initializer;
+        if (match(SEMICOLON)) {
+            initializer = null;
+        }
+        // these all consume the semicolon so we don't need to worry about that
+        else if (match(VAR)) {
+            initializer = varDeclaration();
+        }
+        else {
+            initializer = expressionStatement();
+        }
+
+        Expr condition = new Literal(true);
+        if (!check(SEMICOLON)) {
+            condition = expression();
+        }
+        consume(SEMICOLON,"Expected ; after loop condition!");
+
+        Expr increment = null;
+        if (!check(R_PAREN)) {
+            increment = expression();
+        }
+        consume(R_PAREN, "Expected ) after for loop clause!");
+
+        Stmt body = statement();
+
+        if (increment != null) {
+            body = new Stmt.Block(
+                Arrays.asList(
+                new Stmt.Expression(increment),
+                body
+            ));
+        }
+
+        body = new Stmt.While(condition, body);
+
+        if (initializer != null) {
+            body = new Stmt.Block(
+                Arrays.asList(
+                    initializer,
+                    body
+                )
+            );
+        }
+
+        return body;
+        
     }
 
     private Stmt whileStatement() {

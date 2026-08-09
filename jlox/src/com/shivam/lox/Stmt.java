@@ -8,6 +8,8 @@ abstract class Stmt {
 		R visitPrintStmt(Print stmt);
 		R visitIfStmt(If stmt);
 		R visitWhileStmt(While stmt);
+		R visitBreakStmt(Break stmt);
+		R visitContinueStmt(Continue stmt);
 		R visitVarStmt(Var stmt);
 	}
 	public static class Block extends Stmt {
@@ -78,6 +80,32 @@ abstract class Stmt {
 		}
 		final Expr condition;
 		final Stmt body;
+
+	}
+
+	public static class Break extends Stmt {
+		Break(Token breakTok) {
+			this.breakTok = breakTok;
+		}
+
+		@Override
+		<R> R accept(Visitor<R> visitor) {
+			return visitor.visitBreakStmt(this);
+		}
+		final Token breakTok;
+
+	}
+
+	public static class Continue extends Stmt {
+		Continue(Token contTok) {
+			this.contTok = contTok;
+		}
+
+		@Override
+		<R> R accept(Visitor<R> visitor) {
+			return visitor.visitContinueStmt(this);
+		}
+		final Token contTok;
 
 	}
 

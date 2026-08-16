@@ -4,6 +4,7 @@ import java.util.List;
 abstract class Expr {
 	interface Visitor<R> {
 		R visitBinaryExpr(Binary expr);
+		R visitCallExpr(Call expr);
 		R visitLogicalExpr(Logical expr);
 		R visitGroupingExpr(Grouping expr);
 		R visitLiteralExpr(Literal expr);
@@ -26,6 +27,23 @@ abstract class Expr {
 		final Expr left;
 		final Token operator;
 		final Expr right;
+
+	}
+
+	public static class Call extends Expr {
+		Call(Expr calle, Token paren, List<Expr> args) {
+			this.calle = calle;
+			this.paren = paren;
+			this.args = args;
+		}
+
+		@Override
+		<R> R accept(Visitor<R> visitor) {
+			return visitor.visitCallExpr(this);
+		}
+		final Expr calle;
+		final Token paren;
+		final List<Expr> args;
 
 	}
 

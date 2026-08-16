@@ -2,10 +2,12 @@ package com.shivam.lox;
 
 import static com.shivam.lox.TokenType.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.shivam.lox.Expr.Assign;
 import com.shivam.lox.Expr.Binary;
+import com.shivam.lox.Expr.Call;
 import com.shivam.lox.Expr.Grouping;
 import com.shivam.lox.Expr.Literal;
 import com.shivam.lox.Expr.Logical;
@@ -22,7 +24,8 @@ import com.shivam.lox.Stmt.Var;
 import com.shivam.lox.Stmt.While;
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
-    private Environment env = new Environment();
+    final Environment globals = new Environment();
+    private Environment env = globals;
     private boolean breakFound = false;
     private boolean continueFound = false;
 
@@ -328,5 +331,30 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     public Void visitContinueStmt(Continue stmt) {
         continueFound = true;
         return null;
+    }
+
+    @Override
+    public Object visitCallExpr(Call expr) {
+        Object calle = evaluate(expr.calle);
+
+        List<Object> args = new ArrayList<>();
+        for (Expr arg : expr.args) {
+            args.add(evaluate(arg));
+        }
+
+
+        if (!(calle instanceof LoxCallable)) {
+            throw new RuntimeError(expr.paren, "Can only call functions or classes!");
+        }
+        
+        LoxCallable function = (LoxCallable) calle;
+
+        if (args.size() != function.arity()) {
+            throw new RuntimeError(expr.paren, "Expected " 
+            + function.arity() + " arguments but got " 
+            + args.size() + " instead!");
+        }
+
+        return function.call(this, args);
     }
 }

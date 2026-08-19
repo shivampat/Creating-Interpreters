@@ -18,6 +18,7 @@ import com.shivam.lox.Stmt.Block;
 import com.shivam.lox.Stmt.Break;
 import com.shivam.lox.Stmt.Continue;
 import com.shivam.lox.Stmt.Expression;
+import com.shivam.lox.Stmt.Function;
 import com.shivam.lox.Stmt.If;
 import com.shivam.lox.Stmt.Print;
 import com.shivam.lox.Stmt.Var;
@@ -28,6 +29,23 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     private Environment env = globals;
     private boolean breakFound = false;
     private boolean continueFound = false;
+
+    Interpreter() {
+        globals.define("clock", new LoxCallable() {
+            @Override
+            public int arity() { return 0; } 
+
+            @Override
+            public Object call(Interpreter interpreter, List<Object> args) {
+                return (double) System.currentTimeMillis() / 1000.0;
+            }
+
+            @Override
+            public String toString() { return "<native fn>"; }
+
+
+        });
+    }
 
     @Override
     public Object visitBinaryExpr(Binary expr) {
@@ -41,8 +59,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             case STAR:
                 checkNumberOperands(expr.operator, left, right);
                 return (double) left * (double) right;
-            case SLASH:
-                checkNumberOperands(expr.operator, left, right);
+            case SLASH:                checkNumberOperands(expr.operator, left, right);
                 return (double) left / (double) right;
             case PLUS:
                 // Addition of doubles
@@ -263,7 +280,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         return null;
     }
 
-    private void executeBlock(List<Stmt> statements, Environment environment) {
+    void executeBlock(List<Stmt> statements, Environment environment) {
         // we swap the object environment to make it easier to write new visitor methods and reduce how much code we would have to change
         Environment previous = this.env;
 
@@ -356,5 +373,12 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         }
 
         return function.call(this, args);
+    }
+
+    @Override
+    public Void visitFunctionStmt(Function stmt) {
+        LoxFunction func = new LoxFunction(stmt);
+        env.define(stmt.name.lexeme, func);
+        return null;
     }
 }

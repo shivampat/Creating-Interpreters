@@ -1,0 +1,5 @@
+fun printName(first, last) {
+    print "Hello " + first + " " + last + "!";
+}
+
+printName("Shivam", "Patel");

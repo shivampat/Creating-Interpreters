@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.shivam.lox.Expr.Literal;
+import com.shivam.lox.Stmt.Function;
 
 import static com.shivam.lox.TokenType.*;
 
@@ -208,12 +209,47 @@ class Parser {
     private Stmt declaration() {
         try {
             if (match(VAR)) return varDeclaration();
+            if (match(FUN)) return function("function");
             return statement();
         }
         catch (ParseError pe) {
             synchronize();
             return null;
         }
+
+    }
+
+    private Function function(String kind) {
+        Token name = consume(IDENTIFIER, "Expect " + kind + " name!");
+        consume(L_PAREN, "Expect ( after " + kind + " name!");
+        List<Token> params = new ArrayList<>();
+        if (!check(R_PAREN)) {
+            if (params.size() >= 255) {
+                error(peek(), "Cannot have more than 255 parameters inside " + kind + " definition!");
+            }
+            do {
+                params.add(
+                    consume(IDENTIFIER, "Expect parameter name!")
+                );
+            }
+            while (match(COMMA));
+        }
+        consume(R_PAREN, "Expect ) after parameters!");
+        consume(L_BRACE, "Expect { before " + kind + " body!");
+        List<Stmt> body = block();
+        return new Function(name, params, body);
+    }
+
+    private Stmt returnStatement() {
+        // parsed in match() statement to find return statement
+        Token returnTok = previous();
+        Expr value = null;
+        
+        if (!check(SEMICOLON)) {
+            value = expression();
+        }
+        consume(SEMICOLON, "Expected ; after return statement!");
+        return new Stmt.Return(returnTok, value);
 
     }
 
@@ -234,6 +270,7 @@ class Parser {
 
         if (match(IF)) return ifStatement();
         if (match(BREAK)) return breakStatement();
+        if (match(RETURN)) return returnStatement();
         if (match(CONTINUE)) return continueStatement();
         if (match(L_BRACE)) return new Stmt.Block(block());
 

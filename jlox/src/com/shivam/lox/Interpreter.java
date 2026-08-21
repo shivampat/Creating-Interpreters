@@ -378,7 +378,8 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
 
     @Override
     public Void visitFunctionStmt(Function stmt) {
-        LoxFunction func = new LoxFunction(stmt);
+        // remember, when executing a block statement, Interpreter.env is changed to the block statements scoped env, so passing env in works here.
+        LoxFunction func = new LoxFunction(stmt, env);
         env.define(stmt.name.lexeme, func);
         return null;
     }

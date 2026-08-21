@@ -21,6 +21,7 @@ import com.shivam.lox.Stmt.Expression;
 import com.shivam.lox.Stmt.Function;
 import com.shivam.lox.Stmt.If;
 import com.shivam.lox.Stmt.Print;
+import com.shivam.lox.Stmt.Return;
 import com.shivam.lox.Stmt.Var;
 import com.shivam.lox.Stmt.While;
 
@@ -380,5 +381,14 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         LoxFunction func = new LoxFunction(stmt);
         env.define(stmt.name.lexeme, func);
         return null;
+    }
+
+    @Override
+    public Void visitReturnStmt(Return stmt) {
+        Object value = null;
+        if (stmt.value != null)
+            value = evaluate(stmt.value);
+    
+        throw new ReturnE(value);
     }
 }

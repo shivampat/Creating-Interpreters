@@ -88,9 +88,9 @@ abstract class Stmt {
 	}
 
 	public static class Return extends Stmt {
-		Return(Token returnTok, Expr expression) {
+		Return(Token returnTok, Expr value) {
 			this.returnTok = returnTok;
-			this.expression = expression;
+			this.value = value;
 		}
 
 		@Override
@@ -98,7 +98,7 @@ abstract class Stmt {
 			return visitor.visitReturnStmt(this);
 		}
 		final Token returnTok;
-		final Expr expression;
+		final Expr value;
 
 	}
 

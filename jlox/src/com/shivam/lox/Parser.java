@@ -152,7 +152,7 @@ class Parser {
     private Expr finishExpr(Expr expr) {
         List<Expr> args = new ArrayList<>();
         
-        if (!match(R_PAREN)) {
+        if (!check(R_PAREN)) {
             do {
                 if (args.size() >= 255) {
                     error(peek(), "Cannot have more than 255 arguments in a function call!");

@@ -212,7 +212,12 @@ class Parser {
     private Stmt declaration() {
         try {
             if (match(VAR)) return varDeclaration();
-            if (match(FUN)) return function("function");
+            // only runs if we have a name for our function so we can differentiate between lambdas and fun declarations
+            if (check(FUN) && checkNext(IDENTIFIER)) {
+                // Consume only if fun and identifier exist
+                match(FUN);
+                return function("function");
+            }
             return statement();
         }
         catch (ParseError pe) {
@@ -518,6 +523,18 @@ class Parser {
 
     private Token peek() {
         return tokens.get(current);
+    }
+    
+    private Token peekNext() {
+        if (!isAtEnd()) 
+            return tokens.get(current + 1);
+        return tokens.get(current); // EOF token
+    }
+
+    private boolean checkNext(TokenType type) {
+        if (isAtEnd())
+            return false;
+        return peekNext().type == type;
     }
 
     private Token advance() {

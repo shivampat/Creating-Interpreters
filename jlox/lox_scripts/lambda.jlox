@@ -17,3 +17,5 @@ fun lambdaCall(fn) {
 lambdaCall(fun (x) {
     print x;
 });
+
+fun () {};

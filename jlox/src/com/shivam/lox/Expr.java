@@ -12,6 +12,7 @@ abstract class Expr {
 		R visitUnaryExpr(Unary expr);
 		R visitTernaryExpr(Ternary expr);
 		R visitVariableExpr(Variable expr);
+		R visitLambdaExpr(Lambda expr);
 	}
 	public static class Binary extends Expr {
 		Binary(Expr left, Token operator, Expr right) {
@@ -149,6 +150,23 @@ abstract class Expr {
 			return visitor.visitVariableExpr(this);
 		}
 		final Token name;
+
+	}
+
+	public static class Lambda extends Expr {
+		Lambda(Token funTok, List<Token> args, List<Stmt> body) {
+			this.funTok = funTok;
+			this.args = args;
+			this.body = body;
+		}
+
+		@Override
+		<R> R accept(Visitor<R> visitor) {
+			return visitor.visitLambdaExpr(this);
+		}
+		final Token funTok;
+		final List<Token> args;
+		final List<Stmt> body;
 
 	}
 

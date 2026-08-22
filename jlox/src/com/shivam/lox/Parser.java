@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.shivam.lox.Expr.Lambda;
 import com.shivam.lox.Expr.Literal;
 import com.shivam.lox.Stmt.Function;
 
@@ -178,6 +179,8 @@ class Parser {
         }
         if (match(IDENTIFIER))
             return new Expr.Variable(previous());
+        if (match(FUN))
+            return lambda();
         if (match(L_PAREN)) {
             Expr expr = expression();
             consume(R_PAREN, "Expect ')' after expression.");
@@ -222,7 +225,26 @@ class Parser {
     private Function function(String kind) {
         Token name = consume(IDENTIFIER, "Expect " + kind + " name!");
         consume(L_PAREN, "Expect ( after " + kind + " name!");
+        List<Token> params = getParams(kind);
+        consume(R_PAREN, "Expect ) after parameters!");
+        consume(L_BRACE, "Expect { before " + kind + " body!");
+        List<Stmt> body = block();
+        return new Function(name, params, body);
+    }
+
+    private Lambda lambda() {
+        Token funTok = previous();
+        consume(L_PAREN, "Expect ( after lambda fun token!");
+        List<Token> params = getParams("lambda");
+        consume(R_PAREN, "Expect ) after parameters!");
+        consume(L_BRACE, "Expect { before lambda body!");
+        List<Stmt> body = block();
+        return new Lambda(funTok, params, body);
+    }
+
+    private List<Token> getParams(String kind) {
         List<Token> params = new ArrayList<>();
+
         if (!check(R_PAREN)) {
             if (params.size() >= 255) {
                 error(peek(), "Cannot have more than 255 parameters inside " + kind + " definition!");
@@ -234,10 +256,8 @@ class Parser {
             }
             while (match(COMMA));
         }
-        consume(R_PAREN, "Expect ) after parameters!");
-        consume(L_BRACE, "Expect { before " + kind + " body!");
-        List<Stmt> body = block();
-        return new Function(name, params, body);
+
+        return params;
     }
 
     private Stmt returnStatement() {

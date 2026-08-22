@@ -1,0 +1,19 @@
+var printer = fun (num) {
+    print num;
+};
+
+printer(1);
+printer(2);
+printer(3);
+
+printer(printer);
+
+fun lambdaCall(fn) {
+    for (var i = 0; i < 10; i = i + 1) {
+        fn(i);
+    }
+}
+
+lambdaCall(fun (x) {
+    print x;
+});

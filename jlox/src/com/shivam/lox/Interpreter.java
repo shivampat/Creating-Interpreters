@@ -9,6 +9,7 @@ import com.shivam.lox.Expr.Assign;
 import com.shivam.lox.Expr.Binary;
 import com.shivam.lox.Expr.Call;
 import com.shivam.lox.Expr.Grouping;
+import com.shivam.lox.Expr.Lambda;
 import com.shivam.lox.Expr.Literal;
 import com.shivam.lox.Expr.Logical;
 import com.shivam.lox.Expr.Ternary;
@@ -391,5 +392,10 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             value = evaluate(stmt.value);
     
         throw new ReturnE(value);
+    }
+
+    @Override
+    public Object visitLambdaExpr(Lambda expr) {
+        return new LoxFunction(expr, env);
     }
 }

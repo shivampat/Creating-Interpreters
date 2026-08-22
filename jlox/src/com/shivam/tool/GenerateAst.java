@@ -21,7 +21,8 @@ public class GenerateAst {
             "Assign   : Token name, Expr val",
             "Unary    : Token operator, Expr right",
             "Ternary  : Expr condition, Token questTok, Expr trueExpr, Expr elseExpr",
-            "Variable : Token name"
+            "Variable : Token name",
+            "Lambda   : Token funTok, List<Token> args, List<Stmt> body"
         ));
 
         defineAst(dirName, "Stmt", Arrays.asList(

@@ -3,7 +3,9 @@ package com.shivam.lox;
 import static com.shivam.lox.TokenType.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.shivam.lox.Expr.Assign;
 import com.shivam.lox.Expr.Binary;
@@ -29,6 +31,7 @@ import com.shivam.lox.Stmt.While;
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     final Environment globals = new Environment();
     private Environment env = globals;
+    private final Map<Expr, Integer> locals = new HashMap<>();
     private boolean breakFound = false;
     private boolean continueFound = false;
 
@@ -266,13 +269,31 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
 
     @Override
     public Object visitVariableExpr(Variable expr) {
-        return env.get(expr.name);
+        return lookUpVariable(expr.name, expr);
+    }
+
+    private Object lookUpVariable(Token name, Expr expr) {
+        Integer distance = locals.get(expr);
+        if (distance != null) {
+            return env.getAt(distance, name.lexeme);
+        }
+        else {
+            return globals.get(name);
+        }
     }
 
     @Override
     public Object visitAssignExpr(Assign expr) {
         Object val = evaluate(expr.val);
-        env.assign(expr.name, val);
+
+        Integer distance = locals.get(expr);
+        if (distance != null) {
+            env.assignAt(distance, expr.name, val);
+        }
+        else {
+            globals.assign(expr.name, val);
+        }
+
         return val;
     }
 
@@ -397,5 +418,9 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     @Override
     public Object visitLambdaExpr(Lambda expr) {
         return new LoxFunction(expr, env);
+    }
+
+    public void resolve(Expr expr, int scopesAway) {
+        locals.put(expr, scopesAway);
     }
 }

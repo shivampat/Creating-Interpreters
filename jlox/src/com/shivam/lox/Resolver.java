@@ -28,10 +28,16 @@ import com.shivam.lox.Stmt.While;
 
 class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     private final Interpreter interpreter; 
+    private FunctionType currentFunction = FunctionType.NONE;
     private final Stack<Map<String, Boolean>> scopes = new Stack<>(); // Key: identifier name, Value: is identifier resolved yet?
 
     Resolver(Interpreter interpreter) {
         this.interpreter = interpreter;
+    }
+
+    private enum FunctionType {
+        NONE,
+        FUNCTION
     }
 
     @Override
@@ -125,12 +131,14 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     public Void visitFunctionStmt(Function stmt) {
         declare(stmt.name);
         define(stmt.name);
-
-        resolveFunction(stmt);
+        
+        resolveFunction(stmt, FunctionType.FUNCTION);
         return null;
     }
 
-    private void resolveFunction(Function function) {
+    private void resolveFunction(Function function, FunctionType type) {
+        FunctionType enclosing = currentFunction;
+        currentFunction = type;
         beginScope();
 
         for (Token param : function.params) {
@@ -141,6 +149,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         resolve(function.body);
 
         endScope();
+        currentFunction = enclosing;
     }
     
     @Override
@@ -165,6 +174,11 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitReturnStmt(Return stmt) {
+        if (currentFunction == FunctionType.NONE) {
+            Lox.error(stmt.returnTok, 
+                "Cannot use return statement outside of function declaration!"
+            );
+        }
         if (stmt.value != null) resolve(stmt.value);
         return null;
     }

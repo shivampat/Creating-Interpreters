@@ -1,0 +1,18 @@
+fun foo(x) {
+    return x;
+}
+
+var y = fun (x, y) {
+    return x + y;
+};
+
+print "Foo: " + foo(4);
+return x;
+
+while (true) {
+    break;
+}
+
+continue;
+break;
+return;

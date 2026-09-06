@@ -13,7 +13,8 @@ import static com.shivam.lox.TokenType.*;
 class Parser {
     private final List<Token> tokens;
     private int current = 0;
-    private boolean inLoop = false;
+    // moved to Resolver: loop-context tracking for break/continue validation
+    // private boolean inLoop = false;
 
 
     private static class ParseError extends RuntimeException {}
@@ -281,17 +282,19 @@ class Parser {
     private Stmt statement() {
         if (match(PRINT)) return printStatement();
 
-        boolean prev = inLoop;
-        inLoop = true;
-
-        try {
-            if (match(WHILE)) return whileStatement();
-            if (match(FOR)) return forStatement();
-        }
-        finally {
-            inLoop = prev;
-        }
-
+        // loop-context tracking moved to Resolver
+        // boolean prev = inLoop;
+        // inLoop = true;
+        //
+        // try {
+        //     if (match(WHILE)) return whileStatement();
+        //     if (match(FOR)) return forStatement();
+        // }
+        // finally {
+        //     inLoop = prev;
+        // }
+        if (match(WHILE)) return whileStatement();
+        if (match(FOR)) return forStatement();
 
         if (match(IF)) return ifStatement();
         if (match(BREAK)) return breakStatement();
@@ -304,22 +307,28 @@ class Parser {
 
     private Stmt breakStatement() {
         Token breakTok = previous();
-        if (inLoop){
-            consume(SEMICOLON, "Expect ; after break statement.");
-            return new Stmt.Break(breakTok);
-        }
-        
-        throw error(breakTok, "Cannot have a break statement that is not in a loop!");
+        // loop-context validation moved to Resolver
+        // if (inLoop){
+        //     consume(SEMICOLON, "Expect ; after break statement.");
+        //     return new Stmt.Break(breakTok);
+        // }
+        //
+        // throw error(breakTok, "Cannot have a break statement that is not in a loop!");
+        consume(SEMICOLON, "Expect ; after break statement.");
+        return new Stmt.Break(breakTok);
     }
 
     private Stmt continueStatement() {
         Token continueTok = previous();
-        if (inLoop) {
-            consume(SEMICOLON, "Expect ; after continue statement.");
-            return new Stmt.Continue(continueTok);
-        }
-
-        throw error(continueTok, "Cannot have a continue statement that is not in a loop!");
+        // loop-context validation moved to Resolver
+        // if (inLoop) {
+        //     consume(SEMICOLON, "Expect ; after continue statement.");
+        //     return new Stmt.Continue(continueTok);
+        // }
+        //
+        // throw error(continueTok, "Cannot have a continue statement that is not in a loop!");
+        consume(SEMICOLON, "Expect ; after continue statement.");
+        return new Stmt.Continue(continueTok);
     }
 
     private Stmt forStatement() {

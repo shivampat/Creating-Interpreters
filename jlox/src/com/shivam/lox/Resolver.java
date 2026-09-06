@@ -29,6 +29,7 @@ import com.shivam.lox.Stmt.While;
 class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     private final Interpreter interpreter; 
     private FunctionType currentFunction = FunctionType.NONE;
+    private boolean inLoop = false;
     private final Stack<Map<String, Boolean>> scopes = new Stack<>(); // Key: identifier name, Value: is identifier resolved yet?
 
     Resolver(Interpreter interpreter) {
@@ -179,14 +180,18 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
                 "Cannot use return statement outside of function declaration!"
             );
         }
+
         if (stmt.value != null) resolve(stmt.value);
         return null;
     }
 
     @Override
     public Void visitWhileStmt(While stmt) {
+        boolean enclosingLoop = inLoop;
+        inLoop = true;
         resolve(stmt.condition);
         resolve(stmt.body);
+        inLoop = enclosingLoop;
         return null;
     }
 
@@ -234,11 +239,21 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitBreakStmt(Break stmt) {
+        if (!inLoop) {
+            Lox.error(stmt.breakTok,
+                "Cannot call break statement outside of loop!"
+            );
+        }
         return null;
     }
 
     @Override
     public Void visitContinueStmt(Continue stmt) {
+        if (!inLoop) {
+            Lox.error(stmt.contTok,
+                "Cannot call continue statement outside of loop!"
+            );
+        }
         return null;
     }
 
@@ -252,6 +267,8 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitLambdaExpr(Lambda expr) {
+        FunctionType enclosingFunction = currentFunction;
+        currentFunction = FunctionType.FUNCTION;
         beginScope();
         for (Token arg : expr.args) {
             declare(arg);
@@ -259,6 +276,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         }
         resolve(expr.body);
         endScope();
+        currentFunction = enclosingFunction;
         return null;
     }
 

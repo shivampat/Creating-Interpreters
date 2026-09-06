@@ -1,0 +1,13 @@
+{
+    fun z (a, b, c) {
+        return;
+    }
+
+    fun (a, b, c) {
+        return;
+    };
+
+    var x = 0;
+    var y = 5;
+    print y;
+}

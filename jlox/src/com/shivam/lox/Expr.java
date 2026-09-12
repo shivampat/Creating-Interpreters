@@ -167,7 +167,7 @@ abstract class Expr {
 		final Token funTok;
 		final List<Token> args;
 		final List<Stmt> body;
-
+		int envSize;
 	}
 
 

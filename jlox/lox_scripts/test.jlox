@@ -1,0 +1,17 @@
+{
+    print "First y";
+    var y = 5;
+
+    fun test(a, b) {
+        var x = 10;
+        var y = x * (a + b);
+        print y;
+    }
+
+    fun (c, d) {
+        print y;
+    };
+
+    print "Second y " + y;
+    test(1, 2);
+}

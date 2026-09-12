@@ -31,9 +31,20 @@ import com.shivam.lox.Stmt.While;
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     final Environment globals = new Environment();
     private Environment env = globals;
-    private final Map<Expr, Integer> locals = new HashMap<>();
+    private final Map<Expr, LocalData> locals = new HashMap<>();
     private boolean breakFound = false;
     private boolean continueFound = false;
+    
+    private class LocalData {
+        final int index;
+        final int scopesAway;
+
+        LocalData(int index, int scopesAway) {
+            this.index = index;
+            this.scopesAway = scopesAway;
+        }
+    }
+
 
     Interpreter() {
         globals.define("clock", new LoxCallable() {
@@ -262,8 +273,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         if (stmt.initializer != null) {
             value = evaluate(stmt.initializer);
         }
-        
-        env.define(stmt.name.lexeme, value);
+        env.defineAt(stmt.index, value);
         return null;
     }
 
@@ -273,9 +283,12 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     }
 
     private Object lookUpVariable(Token name, Expr expr) {
-        Integer distance = locals.get(expr);
-        if (distance != null) {
-            return env.getAt(distance, name.lexeme);
+        LocalData data = locals.get(expr);
+
+        if (data != null) {
+            Integer distance = data.scopesAway;
+            int index = data.index;
+            return env.getAt(index, distance);
         }
         else {
             return globals.get(name);
@@ -286,9 +299,12 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     public Object visitAssignExpr(Assign expr) {
         Object val = evaluate(expr.val);
 
-        Integer distance = locals.get(expr);
-        if (distance != null) {
-            env.assignAt(distance, expr.name, val);
+        LocalData data = locals.get(expr);
+
+        if (data != null) {
+            Integer distance = data.scopesAway;
+            int index = data.index;
+            env.assignAt(index, distance, val);
         }
         else {
             globals.assign(expr.name, val);
@@ -299,7 +315,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
 
     @Override
     public Void visitBlockStmt(Block stmt) {
-        executeBlock(stmt.statements, new Environment(env));
+        executeBlock(stmt.statements, new Environment(env, stmt.envSize));
         return null;
     }
 
@@ -402,7 +418,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     public Void visitFunctionStmt(Function stmt) {
         // remember, when executing a block statement, Interpreter.env is changed to the block statements scoped env, so passing env in works here.
         LoxFunction func = new LoxFunction(stmt, env);
-        env.define(stmt.name.lexeme, func);
+        env.defineAt(stmt.index, func);
         return null;
     }
 
@@ -420,7 +436,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         return new LoxFunction(expr, env);
     }
 
-    public void resolve(Expr expr, int scopesAway) {
-        locals.put(expr, scopesAway);
+    public void resolve(Expr expr, int scopesAway, int index) {
+        locals.put(expr, new LocalData(index, scopesAway));
     }
 }

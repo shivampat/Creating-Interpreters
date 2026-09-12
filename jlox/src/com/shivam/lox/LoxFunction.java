@@ -10,12 +10,14 @@ class LoxFunction implements LoxCallable {
     private final List<Stmt> body;
     private final Token name;
     private final Environment closure;
+    private final int envSize;
 
     LoxFunction(Function definition, Environment closure) {
         this.params = definition.params;
         this.body = definition.body;
         this.name = definition.name;
         this.closure = closure;
+        this.envSize = definition.envSize;
     }
 
     LoxFunction(Lambda definition, Environment closure) {
@@ -23,6 +25,7 @@ class LoxFunction implements LoxCallable {
         this.body = definition.body;
         this.name = null;
         this.closure = closure;
+        this.envSize = definition.envSize;
     }
 
     @Override
@@ -32,10 +35,10 @@ class LoxFunction implements LoxCallable {
 
     @Override
     public Object call(Interpreter interpreter, List<Object> args) {
-        Environment environment = new Environment(closure);
+        Environment environment = new Environment(closure, envSize);
 
         for (int i = 0; i < arity(); i++) {
-            environment.define(params.get(i).lexeme, args.get(i));
+            environment.defineAt(i, args.get(i));
         }
 
         try {

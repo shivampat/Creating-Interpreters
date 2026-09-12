@@ -4,22 +4,38 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Environment {
-    private final Map<String, Object> values = new HashMap<>();
+    private final Map<String, Object> values;
+    private Object[] local_values;
     final Environment enclosing;
 
+    // Enforce dynamic global hash map
     Environment() {
         enclosing = null;
+        values = new HashMap<>();
     }
 
-    Environment(Environment enclosing) {
+    // Statically defined array fetching 
+    Environment(Environment enclosing, int envSize) {
         this.enclosing = enclosing;
+        local_values = new Object[envSize];
+        values = null;
     }
 
     void define(String name, Object obj) {
+        if (local_values != null) {
+            throw new IllegalStateException("Cannot use map methods when in a local-scoped environment!");
+        }
         values.put(name, obj);
     }
 
+    void defineAt(int index, Object obj) {
+        this.local_values[index] = obj;
+    }
+
     Object get(Token name) {
+        if (local_values != null) {
+            throw new IllegalStateException("Cannot use map methods when in a local-scoped environment!");
+        }
         if (values.containsKey(name.lexeme)) {
             if (values.get(name.lexeme) != null) {
                 return values.get(name.lexeme);
@@ -34,6 +50,9 @@ public class Environment {
     }
 
     public void assign(Token name, Object val) {
+        if (local_values != null) {
+            throw new IllegalStateException("Cannot use map methods when in a local-scoped environment!");
+        }
         if (values.containsKey(name.lexeme)) {
             values.put(name.lexeme, val);
             return;
@@ -56,11 +75,11 @@ public class Environment {
         return current;
     }
 
-    public Object getAt(Integer distance, String lexeme) {
-        return ancestor(distance).values.get(lexeme);
+    public Object getAt(int index, Integer distance) {
+        return ancestor(distance).local_values[index];
     }
 
-    public void assignAt(Integer distance, Token name, Object val) {
-        ancestor(distance).values.put(name.lexeme, val);
+    public void assignAt(int index, Integer distance, Object val) {
+        ancestor(distance).local_values[index] = val;
     }
 }

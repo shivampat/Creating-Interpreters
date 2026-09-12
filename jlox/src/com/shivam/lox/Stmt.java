@@ -24,7 +24,7 @@ abstract class Stmt {
 			return visitor.visitBlockStmt(this);
 		}
 		final List<Stmt> statements;
-
+		int envSize;
 	}
 
 	public static class Expression extends Stmt {
@@ -54,7 +54,8 @@ abstract class Stmt {
 		final Token name;
 		final List<Token> params;
 		final List<Stmt> body;
-
+		int envSize;
+		int index;
 	}
 
 	public static class Print extends Stmt {
@@ -155,7 +156,7 @@ abstract class Stmt {
 		}
 		final Token name;
 		final Expr initializer;
-
+		int index;
 	}
 
 

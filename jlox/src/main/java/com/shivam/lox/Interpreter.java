@@ -273,7 +273,11 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         if (stmt.initializer != null) {
             value = evaluate(stmt.initializer);
         }
-        env.defineAt(stmt.index, value);
+
+        if (stmt.index != null)
+            env.defineAt(stmt.index, value);
+        else
+            globals.define(stmt.name.lexeme, value);
         return null;
     }
 
@@ -418,7 +422,10 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     public Void visitFunctionStmt(Function stmt) {
         // remember, when executing a block statement, Interpreter.env is changed to the block statements scoped env, so passing env in works here.
         LoxFunction func = new LoxFunction(stmt, env);
-        env.defineAt(stmt.index, func);
+        if (stmt.index != null)
+            env.defineAt(stmt.index, func);
+        else
+            globals.define(stmt.name.lexeme, func);
         return null;
     }
 

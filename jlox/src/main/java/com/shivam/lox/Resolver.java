@@ -109,6 +109,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
             resolve(stmt.initializer);
         }
         define(stmt.name);
+        if (scopes.isEmpty()) return null;
         stmt.index = scopes.peek().get(stmt.name.lexeme).envIndex;
         return null;
     }
@@ -180,9 +181,9 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     public Void visitFunctionStmt(Function stmt) {
         declare(stmt.name, DeclarationType.FUNCTION);
         define(stmt.name);
-        stmt.index = scopes.peek().get(stmt.name.lexeme).envIndex;
-        
         resolveFunction(stmt, FunctionType.FUNCTION);
+        if (scopes.empty()) return null;
+        stmt.index = scopes.peek().get(stmt.name.lexeme).envIndex;
         return null;
     }
 

@@ -29,6 +29,9 @@ public class Environment {
     }
 
     void defineAt(int index, Object obj) {
+        if (local_values == null) {
+            throw new IllegalStateException("Cannot use defineAt on globally-scoped identifiers!");
+        }
         this.local_values[index] = obj;
     }
 

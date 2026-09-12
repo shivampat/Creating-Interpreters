@@ -55,7 +55,7 @@ abstract class Stmt {
 		final List<Token> params;
 		final List<Stmt> body;
 		int envSize;
-		int index;
+		Integer index;
 	}
 
 	public static class Print extends Stmt {
@@ -156,7 +156,7 @@ abstract class Stmt {
 		}
 		final Token name;
 		final Expr initializer;
-		int index;
+		Integer index;
 	}
 
 

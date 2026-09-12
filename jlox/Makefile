@@ -1,4 +1,4 @@
-SRC_DIR   := src
+SRC_DIR   := src/main/java
 BIN_DIR   := bin
 MAIN      := com.shivam.lox.Lox
 AST_TOOL  := com.shivam.tool.GenerateAst

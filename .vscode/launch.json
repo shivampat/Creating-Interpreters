@@ -13,6 +13,16 @@
                 "jlox\\lox_scripts\\lambda.jlox"
             ],
             "console": "integratedTerminal"
+        },
+        {
+            "type": "java",
+            "name": "GenerateAst",
+            "request": "launch",
+            "mainClass": "com.shivam.tool.GenerateAst",
+            "args": [
+                "jlox\\src\\main\\java\\com\\shivam\\lox"
+            ],
+            "console": "integratedTerminal"
         }
     ]
 }

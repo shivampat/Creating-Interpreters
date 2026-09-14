@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.shivam.lox.Expr.Get;
 import com.shivam.lox.Expr.Lambda;
 import com.shivam.lox.Expr.Literal;
+import com.shivam.lox.Expr.Set;
 import com.shivam.lox.Stmt.Function;
 
 import static com.shivam.lox.TokenType.*;
@@ -142,6 +144,10 @@ class Parser {
             if (match(L_PAREN)) {
                 expr = finishExpr(expr);
             }
+            else if (match(PERIOD)) {
+                Token name = consume(IDENTIFIER, "Expect property name after '.'!");
+                expr = new Expr.Get(expr, name);
+            }
             else {
                 break;
             }
@@ -219,6 +225,7 @@ class Parser {
                 match(FUN);
                 return function("function");
             }
+            if (match(CLASS)) return classDeclaration();
             return statement();
         }
         catch (ParseError pe) {
@@ -226,6 +233,22 @@ class Parser {
             return null;
         }
 
+    }
+
+    private Stmt classDeclaration() {
+        Token identifier = consume(IDENTIFIER, "Class declaration must have class name!");
+
+        consume(L_BRACE, "Class name must be followed by '{'!");
+
+        List<Function> methods = new ArrayList<>();
+
+        while (!check(R_BRACE) && !isAtEnd()) {
+            methods.add(function("method"));
+        }
+
+        consume(R_BRACE, "Expect '}' after class body!");
+
+        return new Stmt.Class(identifier, methods);
     }
 
     private Function function(String kind) {
@@ -451,6 +474,10 @@ class Parser {
             if (lval instanceof Expr.Variable) {
                 Token name = ((Expr.Variable) lval).name;
                 return new Expr.Assign(name, rval);
+            }
+            else if (lval instanceof Expr.Set) {
+                Get get = (Get) lval;
+                return new Set(get.object, get.name, rval);
             }
 
             error(equals, "Invalid assignment target.");

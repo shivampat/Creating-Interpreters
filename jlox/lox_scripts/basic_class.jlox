@@ -1,0 +1,10 @@
+class TestClass {
+    doesSomething() {
+        return "something";
+    }
+}
+
+print TestClass;
+
+var test = TestClass();
+print test;

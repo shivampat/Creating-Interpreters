@@ -8,10 +8,12 @@ import java.util.Stack;
 import com.shivam.lox.Expr.Assign;
 import com.shivam.lox.Expr.Binary;
 import com.shivam.lox.Expr.Call;
+import com.shivam.lox.Expr.Get;
 import com.shivam.lox.Expr.Grouping;
 import com.shivam.lox.Expr.Lambda;
 import com.shivam.lox.Expr.Literal;
 import com.shivam.lox.Expr.Logical;
+import com.shivam.lox.Expr.Set;
 import com.shivam.lox.Expr.Ternary;
 import com.shivam.lox.Expr.Unary;
 import com.shivam.lox.Expr.Variable;
@@ -55,7 +57,8 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     private enum FunctionType {
         NONE,
-        FUNCTION
+        FUNCTION,
+        METHOD
     }
 
     private enum UsedState {
@@ -66,7 +69,8 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     private enum DeclarationType {
         VAR,
-        FUNCTION
+        FUNCTION,
+        CLASS
     }
 
     @Override
@@ -184,6 +188,31 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         resolveFunction(stmt, FunctionType.FUNCTION);
         if (scopes.empty()) return null;
         stmt.index = scopes.peek().get(stmt.name.lexeme).envIndex;
+        return null;
+    }
+
+    @Override
+    public Void visitClassStmt(Stmt.Class stmt) {
+        declare(stmt.name, DeclarationType.CLASS);
+        define(stmt.name);
+        for (Function method : stmt.methods) {
+            resolveFunction(method, FunctionType.METHOD);
+        }
+        if (scopes.empty()) return null;
+        stmt.index = scopes.peek().get(stmt.name.lexeme).envIndex;
+        return null;
+    }
+
+    @Override
+    public Void visitSetExpr(Set expr) {
+        resolve(expr.object);
+        resolve(expr.value);
+        return null;
+    }
+
+    @Override
+    public Void visitGetExpr(Get expr) {
+        resolve(expr.object);
         return null;
     }
 

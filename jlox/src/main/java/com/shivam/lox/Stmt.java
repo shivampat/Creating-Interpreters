@@ -40,7 +40,7 @@ abstract class Stmt {
 		}
 		final Token name;
 		final List<Stmt.Function> methods;
-
+		Integer index;
 	}
 
 	public static class Expression extends Stmt {

@@ -5,7 +5,9 @@ abstract class Expr {
 	interface Visitor<R> {
 		R visitBinaryExpr(Binary expr);
 		R visitCallExpr(Call expr);
+		R visitGetExpr(Get expr);
 		R visitLogicalExpr(Logical expr);
+		R visitSetExpr(Set set);
 		R visitGroupingExpr(Grouping expr);
 		R visitLiteralExpr(Literal expr);
 		R visitAssignExpr(Assign expr);
@@ -48,6 +50,21 @@ abstract class Expr {
 
 	}
 
+	public static class Get extends Expr {
+		Get(Expr object, Token name) {
+			this.object = object;
+			this.name = name;
+		}
+
+		@Override
+		<R> R accept(Visitor<R> visitor) {
+			return visitor.visitGetExpr(this);
+		}
+		final Expr object;
+		final Token name;
+
+	}
+
 	public static class Logical extends Expr {
 		Logical(Expr left, Token operator, Expr right) {
 			this.left = left;
@@ -62,6 +79,23 @@ abstract class Expr {
 		final Expr left;
 		final Token operator;
 		final Expr right;
+
+	}
+
+	public static class Set extends Expr {
+		Set(Expr object, Token name, Expr value) {
+			this.object = object;
+			this.name = name;
+			this.value = value;
+		}
+
+		@Override
+		<R> R accept(Visitor<R> visitor) {
+			return visitor.visitSetExpr(this);
+		}
+		final Expr object;
+		final Token name;
+		final Expr value;
 
 	}
 

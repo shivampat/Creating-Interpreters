@@ -19,6 +19,11 @@ public class ClassTest {
         Lox.hadRuntimeError = false;
     }
 
+    private List<Stmt> parse(String source) {
+        List<Token> tokens = new Scanner(source).scanTokens();
+        return new Parser(tokens).parse();
+    }
+
     @Test 
     
     

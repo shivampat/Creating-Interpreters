@@ -10,7 +10,7 @@
             "request": "launch",
             "mainClass": "com.shivam.lox.Lox",
             "args": [
-                "jlox\\lox_scripts\\lambda.jlox"
+                "jlox\\lox_scripts\\basic_class.jlox"
             ],
             "console": "integratedTerminal"
         },

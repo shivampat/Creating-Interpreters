@@ -470,6 +470,11 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     }
 
     @Override
+    public Object visitThisExpr(Expr.This expr) {
+        return lookUpVariable(expr.keyword, expr);
+    }
+
+    @Override
     public Void visitClassStmt(Stmt.Class stmt) {
         if (stmt.index != null) {
             env.defineAt(stmt.index, null);
@@ -482,9 +487,10 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         for (Function method : stmt.methods) {
             // TODO: add support for new array based env
             LoxFunction function = new LoxFunction(method, env);
+            methods.put(method.name.lexeme, function);
         }
 
-        LoxClass klass = new LoxClass(stmt.name.lexeme);
+        LoxClass klass = new LoxClass(stmt.name.lexeme, methods);
 
         if (stmt.index != null) {
             env.defineAt(stmt.index, klass);

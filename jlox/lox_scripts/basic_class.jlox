@@ -1,10 +1,12 @@
-class TestClass {
-    doesSomething() {
-        return "something";
+class Cake {
+    init(cake_type) {
+        this.type = cake_type;
+    }
+    
+    getCake() {
+        return this.type;
     }
 }
 
-print TestClass;
-
-var test = TestClass();
-print test;
+var cake = Cake("IceCream");
+print cake.getCake();

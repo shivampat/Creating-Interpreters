@@ -1,0 +1,17 @@
+class Cake {
+    init(cake_type, num_cherries) {
+        this.type = cake_type;
+        this.cherries = num_cherries;
+    }
+
+    getType() {
+        return this.type;
+    }
+
+    getNumCherries() {
+        return this.cherries;
+    }
+}
+
+var cake = Cake();
+print cake.getType();

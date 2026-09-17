@@ -61,6 +61,13 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         METHOD
     }
 
+    private enum ClassType {
+        NONE,
+        CLASS
+    }
+
+    private ClassType currentClass = ClassType.NONE;
+
     private enum UsedState {
         USED,
         UNUSED,
@@ -195,11 +202,24 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     public Void visitClassStmt(Stmt.Class stmt) {
         declare(stmt.name, DeclarationType.CLASS);
         define(stmt.name);
+
+        ClassType enclosingClass = currentClass;
+        currentClass = ClassType.CLASS;
+        
+        beginScope();
+        scopes.peek().put("this", new ScopeEntry(null, Boolean.TRUE, UsedState.EXEMPT, DeclarationType.VAR, scopes.peek().size()));
+
         for (Function method : stmt.methods) {
             resolveFunction(method, FunctionType.METHOD);
         }
+
+        endScope();
+        currentClass = enclosingClass;
+
         if (scopes.empty()) return null;
         stmt.index = scopes.peek().get(stmt.name.lexeme).envIndex;
+
+        
         return null;
     }
 
@@ -237,6 +257,17 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     @Override
     public Void visitExpressionStmt(Expression stmt) {
         resolve(stmt.expression);
+        return null;
+    }
+
+    @Override
+    public Void visitThisExpr(Expr.This expr) {
+        if (currentClass == ClassType.NONE) {
+            Lox.error(expr.keyword, "Cannot use 'this' outside of a class!");
+            return null;
+        }
+        
+        resolveLocal(expr, expr.keyword, false);
         return null;
     }
 

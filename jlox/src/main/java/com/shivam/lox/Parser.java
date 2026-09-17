@@ -186,6 +186,8 @@ class Parser {
         }
         if (match(IDENTIFIER))
             return new Expr.Variable(previous());
+        if (match(THIS))
+            return new Expr.This(previous());
         if (match(FUN))
             return lambda();
         if (match(L_PAREN)) {
@@ -475,7 +477,7 @@ class Parser {
                 Token name = ((Expr.Variable) lval).name;
                 return new Expr.Assign(name, rval);
             }
-            else if (lval instanceof Expr.Set) {
+            else if (lval instanceof Expr.Get) {
                 Get get = (Get) lval;
                 return new Set(get.object, get.name, rval);
             }

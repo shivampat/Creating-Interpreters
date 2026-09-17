@@ -11,6 +11,8 @@ class LoxFunction implements LoxCallable {
     private final Token name;
     private final Environment closure;
     private final int envSize;
+    private final Function funcDef;
+    private final Lambda lambdaDef;
 
     LoxFunction(Function definition, Environment closure) {
         this.params = definition.params;
@@ -18,6 +20,8 @@ class LoxFunction implements LoxCallable {
         this.name = definition.name;
         this.closure = closure;
         this.envSize = definition.envSize;
+        this.funcDef = definition;
+        this.lambdaDef = null;
     }
 
     LoxFunction(Lambda definition, Environment closure) {
@@ -26,6 +30,8 @@ class LoxFunction implements LoxCallable {
         this.name = null;
         this.closure = closure;
         this.envSize = definition.envSize;
+        this.funcDef = null;
+        this.lambdaDef = definition;
     }
 
     @Override
@@ -48,6 +54,12 @@ class LoxFunction implements LoxCallable {
             return retVal.value;
         }
         return null;
+    }
+
+    LoxFunction bind(LoxInstance instance) {
+        Environment environment = new Environment(closure, 1);
+        environment.defineAt(0, instance);
+        return new LoxFunction(funcDef, environment);
     }
 
     @Override

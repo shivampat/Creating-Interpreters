@@ -423,7 +423,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     @Override
     public Void visitFunctionStmt(Function stmt) {
         // remember, when executing a block statement, Interpreter.env is changed to the block statements scoped env, so passing env in works here.
-        LoxFunction func = new LoxFunction(stmt, env);
+        LoxFunction func = new LoxFunction(stmt, env, false);
         if (stmt.index != null)
             env.defineAt(stmt.index, func);
         else
@@ -486,7 +486,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         Map<String, LoxFunction> methods = new HashMap<>();
         for (Function method : stmt.methods) {
             // TODO: add support for new array based env
-            LoxFunction function = new LoxFunction(method, env);
+            LoxFunction function = new LoxFunction(method, env, method.name.equals("init"));
             methods.put(method.name.lexeme, function);
         }
 

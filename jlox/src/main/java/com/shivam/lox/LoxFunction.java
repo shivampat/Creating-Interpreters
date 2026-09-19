@@ -13,8 +13,20 @@ class LoxFunction implements LoxCallable {
     private final int envSize;
     private final Function funcDef;
     private final Lambda lambdaDef;
+    private final Boolean isInitializer;
 
-    LoxFunction(Function definition, Environment closure) {
+    // LoxFunction(Function definition, Environment closure) {
+    //     this.params = definition.params;
+    //     this.body = definition.body;
+    //     this.name = definition.name;
+    //     this.closure = closure;
+    //     this.envSize = definition.envSize;
+    //     this.funcDef = definition;
+    //     this.lambdaDef = null;
+    //     this.isInitializer = false;
+    // }
+
+    LoxFunction(Function definition, Environment closure, Boolean isInitializer) {
         this.params = definition.params;
         this.body = definition.body;
         this.name = definition.name;
@@ -22,6 +34,7 @@ class LoxFunction implements LoxCallable {
         this.envSize = definition.envSize;
         this.funcDef = definition;
         this.lambdaDef = null;
+        this.isInitializer = isInitializer;
     }
 
     LoxFunction(Lambda definition, Environment closure) {
@@ -32,6 +45,7 @@ class LoxFunction implements LoxCallable {
         this.envSize = definition.envSize;
         this.funcDef = null;
         this.lambdaDef = definition;
+        this.isInitializer = false;
     }
 
     @Override
@@ -51,6 +65,7 @@ class LoxFunction implements LoxCallable {
             interpreter.executeBlock(body, environment);
         }
         catch (ReturnE retVal) {
+            if (isInitializer) return closure.getAt(0, 0);
             return retVal.value;
         }
         return null;
@@ -59,7 +74,7 @@ class LoxFunction implements LoxCallable {
     LoxFunction bind(LoxInstance instance) {
         Environment environment = new Environment(closure, 1);
         environment.defineAt(0, instance);
-        return new LoxFunction(funcDef, environment);
+        return new LoxFunction(funcDef, environment, isInitializer);
     }
 
     @Override

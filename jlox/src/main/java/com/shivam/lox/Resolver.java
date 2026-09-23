@@ -27,11 +27,13 @@ import com.shivam.lox.Stmt.Print;
 import com.shivam.lox.Stmt.Return;
 import com.shivam.lox.Stmt.Var;
 import com.shivam.lox.Stmt.While;
+import com.shivam.lox.FunctionType;
 
 class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     private final Interpreter interpreter; 
     private FunctionType currentFunction = FunctionType.NONE;
     private boolean inLoop = false;
+    private boolean didGetterReturn = false;
     // private final Stack<Map<String, Boolean>> scopes = new Stack<>(); // Key: identifier name, Value: is identifier resolved yet?
     private final Stack<Map<String, ScopeEntry>> scopes = new Stack<>(); // Key: identifier name, Value: is identifier resolved yet?
         
@@ -53,14 +55,6 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
             this.decType = decType;
             this.envIndex = envIndex;
         }
-    }
-
-    private enum FunctionType {
-        NONE,
-        FUNCTION,
-        METHOD,
-        INITIALIZER,
-        GETTER
     }
 
     private enum ClassType {
@@ -237,6 +231,13 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
                 );
             }
             resolveFunction(getter, decType);
+
+            if (!didGetterReturn) {
+                Lox.error(getter.name, 
+                    "'" + getter.name.lexeme + "' getter field must return a value!"
+                );
+            }
+            didGetterReturn = false;
         }
 
         endScope();
@@ -332,7 +333,12 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
                     "Cannot return a value from an initializer!"
                 );
             }
+
             resolve(stmt.value);
+
+            if (currentFunction == FunctionType.GETTER) {
+                didGetterReturn = true;
+            }
         }
 
         return null;

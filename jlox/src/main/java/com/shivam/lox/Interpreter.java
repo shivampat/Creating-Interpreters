@@ -423,7 +423,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     @Override
     public Void visitFunctionStmt(Function stmt) {
         // remember, when executing a block statement, Interpreter.env is changed to the block statements scoped env, so passing env in works here.
-        LoxFunction func = new LoxFunction(stmt, env, false);
+        LoxFunction func = new LoxFunction(stmt, env, FunctionType.FUNCTION);
         if (stmt.index != null)
             env.defineAt(stmt.index, func);
         else
@@ -436,7 +436,13 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         Object object = evaluate(expr.object);
 
         if (object instanceof LoxInstance) {
-            return ((LoxInstance) object).get(expr.name);
+            Object getVal = ((LoxInstance) object).get(expr.name);
+
+            if (getVal instanceof LoxFunction && ((LoxFunction) getVal).type == FunctionType.GETTER) {
+                return ((LoxFunction) getVal).bind((LoxInstance) object).call(this, new ArrayList<Object>());
+            }
+
+            return getVal;
         }
 
         throw new RuntimeError(expr.name, "Only instances have properties!");
@@ -485,13 +491,18 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
 
         Map<String, LoxFunction> methods = new HashMap<>();
         for (Function method : stmt.methods) {
-            LoxFunction function = new LoxFunction(method, env, method.name.lexeme.equals("init"));
+            FunctionType type = (method.name.lexeme.equals("init")) ? FunctionType.INITIALIZER : FunctionType.METHOD;
+            LoxFunction function = new LoxFunction(method, env, type);
             methods.put(method.name.lexeme, function);
+        }
+
+        for (Function getter : stmt.getters) {
+            methods.put(getter.name.lexeme, new LoxFunction(getter, env, FunctionType.GETTER));
         }
 
         Map<String, LoxFunction> static_methods = new HashMap<>();
         for (Function s_method : stmt.static_methods) {
-            LoxFunction function = new LoxFunction(s_method, env, Boolean.FALSE);
+            LoxFunction function = new LoxFunction(s_method, env, FunctionType.METHOD);
             static_methods.put(s_method.name.lexeme, function);
         }
         

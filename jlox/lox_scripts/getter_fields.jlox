@@ -1,0 +1,14 @@
+class Circle {
+    init(radius) {
+        this.radius = radius;
+    }    
+
+    init {
+        print 5;
+    }
+}
+
+var cir = Circle(4);
+print cir.area;
+cir.radius = 5;
+print cir.area;

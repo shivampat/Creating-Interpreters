@@ -250,7 +250,7 @@ class Parser {
             if (check(IDENTIFIER) && checkNext(L_BRACE)) {
                 Token getterName = consume(IDENTIFIER, "Getter field must have a name!");
                 consume(L_BRACE, "Getter field name must be followed by '{' to start block!");
-                getters.add(new Function(getterName, null, block()));
+                getters.add(new Function(getterName, new ArrayList<>(), block()));
             }
             else if (match(CLASS)) {
                 static_methods.add(function("static method"));

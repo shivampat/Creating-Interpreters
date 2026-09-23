@@ -5,6 +5,15 @@ import java.util.List;
 import com.shivam.lox.Expr.Lambda;
 import com.shivam.lox.Stmt.Function;
 
+enum FunctionType {
+    NONE,
+    FUNCTION,
+    LAMBDA,
+    METHOD,
+    INITIALIZER,
+    GETTER
+}
+
 class LoxFunction implements LoxCallable {
     private final List<Token> params;
     private final List<Stmt> body;
@@ -13,7 +22,7 @@ class LoxFunction implements LoxCallable {
     private final int envSize;
     private final Function funcDef;
     private final Lambda lambdaDef;
-    private final Boolean isInitializer;
+    final FunctionType type;
 
     // LoxFunction(Function definition, Environment closure) {
     //     this.params = definition.params;
@@ -26,7 +35,7 @@ class LoxFunction implements LoxCallable {
     //     this.isInitializer = false;
     // }
 
-    LoxFunction(Function definition, Environment closure, Boolean isInitializer) {
+    LoxFunction(Function definition, Environment closure, FunctionType type) {
         this.params = definition.params;
         this.body = definition.body;
         this.name = definition.name;
@@ -34,7 +43,7 @@ class LoxFunction implements LoxCallable {
         this.envSize = definition.envSize;
         this.funcDef = definition;
         this.lambdaDef = null;
-        this.isInitializer = isInitializer;
+        this.type = type;
     }
 
     LoxFunction(Lambda definition, Environment closure) {
@@ -45,7 +54,7 @@ class LoxFunction implements LoxCallable {
         this.envSize = definition.envSize;
         this.funcDef = null;
         this.lambdaDef = definition;
-        this.isInitializer = false;
+        this.type = FunctionType.LAMBDA;
     }
 
     @Override
@@ -65,7 +74,7 @@ class LoxFunction implements LoxCallable {
             interpreter.executeBlock(body, environment);
         }
         catch (ReturnE retVal) {
-            if (isInitializer) return closure.getAt(0, 0);
+            if (type == FunctionType.INITIALIZER) return closure.getAt(0, 0);
             return retVal.value;
         }
         return null;
@@ -74,7 +83,7 @@ class LoxFunction implements LoxCallable {
     LoxFunction bind(LoxInstance instance) {
         Environment environment = new Environment(closure, 1);
         environment.defineAt(0, instance);
-        return new LoxFunction(funcDef, environment, isInitializer);
+        return new LoxFunction(funcDef, environment, type);
     }
 
     @Override

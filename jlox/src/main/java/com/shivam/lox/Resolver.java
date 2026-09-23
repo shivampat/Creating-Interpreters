@@ -59,7 +59,8 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         NONE,
         FUNCTION,
         METHOD,
-        INITIALIZER
+        INITIALIZER,
+        GETTER
     }
 
     private enum ClassType {
@@ -218,6 +219,26 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
             resolveFunction(method, decType);
         }
 
+        for (Function method : stmt.static_methods) {
+            FunctionType decType = FunctionType.METHOD;
+            if (method.name.lexeme.equals("init")) {
+                Lox.error(method.name, 
+                    "Static methods cannot be initializers!"
+                );
+            }
+            resolveFunction(method, decType);
+        }
+
+        for (Function getter : stmt.getters) {
+            FunctionType decType = FunctionType.GETTER;
+            if (getter.name.lexeme.equals("init")) {
+                Lox.error(getter.name, 
+                    "Getter fields cannot be named 'init'!"
+                );
+            }
+            resolveFunction(getter, decType);
+        }
+
         endScope();
         currentClass = enclosingClass;
 
@@ -296,6 +317,13 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
             Lox.error(stmt.returnTok, 
                 "Cannot use return statement outside of function declaration!"
             );
+        }
+
+        if (currentFunction == FunctionType.GETTER && stmt.value == null) {
+            Lox.error(stmt.returnTok,
+                "Getter fields must return a value!"
+            );
+            return null;
         }
 
         if (stmt.value != null) {

@@ -1,0 +1,24 @@
+class Math {
+    class square(n) {
+        return n * n;
+    }
+}
+
+print Math.square(3); // should return 3
+
+class Test2 {
+    init(name) {
+        this.name = name;
+    }
+
+    class nameBuilder(name) {
+        return Test2(name);
+    }
+}
+
+print Test2.nameBuilder("test");
+Test2.pi = 3.14;
+print Test2.pi;
+
+var x = Test2("test");
+print x.pi;

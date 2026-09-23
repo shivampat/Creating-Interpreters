@@ -243,14 +243,26 @@ class Parser {
         consume(L_BRACE, "Class name must be followed by '{'!");
 
         List<Function> methods = new ArrayList<>();
+        List<Function> static_methods = new ArrayList<>();
+        List<Function> getters = new ArrayList<>();
 
         while (!check(R_BRACE) && !isAtEnd()) {
-            methods.add(function("method"));
+            if (check(IDENTIFIER) && checkNext(L_BRACE)) {
+                Token getterName = consume(IDENTIFIER, "Getter field must have a name!");
+                consume(L_BRACE, "Getter field name must be followed by '{' to start block!");
+                getters.add(new Function(getterName, null, block()));
+            }
+            else if (match(CLASS)) {
+                static_methods.add(function("static method"));
+            }
+            else {
+                methods.add(function("method"));
+            }
         }
 
         consume(R_BRACE, "Expect '}' after class body!");
 
-        return new Stmt.Class(identifier, methods);
+        return new Stmt.Class(identifier, methods, static_methods, getters);
     }
 
     private Function function(String kind) {

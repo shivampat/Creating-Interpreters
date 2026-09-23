@@ -485,12 +485,18 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
 
         Map<String, LoxFunction> methods = new HashMap<>();
         for (Function method : stmt.methods) {
-            // TODO: add support for new array based env
-            LoxFunction function = new LoxFunction(method, env, method.name.equals("init"));
+            LoxFunction function = new LoxFunction(method, env, method.name.lexeme.equals("init"));
             methods.put(method.name.lexeme, function);
         }
 
-        LoxClass klass = new LoxClass(stmt.name.lexeme, methods);
+        Map<String, LoxFunction> static_methods = new HashMap<>();
+        for (Function s_method : stmt.static_methods) {
+            LoxFunction function = new LoxFunction(s_method, env, Boolean.FALSE);
+            static_methods.put(s_method.name.lexeme, function);
+        }
+        
+        LoxClass metaclass = new LoxClass(stmt.name.lexeme + "_metaclass", static_methods, null);
+        LoxClass klass = new LoxClass(stmt.name.lexeme, methods, metaclass);
 
         if (stmt.index != null) {
             env.defineAt(stmt.index, klass);

@@ -1,3 +1,8 @@
 *.class
 /.claude
 jlox/target/
+
+# CLOX C files
+clox/bin/
+*.o
+clox/build/

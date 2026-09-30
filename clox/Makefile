@@ -12,7 +12,7 @@ all: $(BIN_DIR)/main
 run:
 	@./$(BIN_DIR)/main
 
-$(BIN_DIR)/main: $(OBJ_DIR)/chunk.o $(OBJ_DIR)/memory.o $(OBJ_DIR)/main.o $(OBJ_DIR)/debug.o $(SRC_DIR)/value.o | $(BIN_DIR)
+$(BIN_DIR)/main: $(OBJ_DIR)/chunk.o $(OBJ_DIR)/memory.o $(OBJ_DIR)/main.o $(OBJ_DIR)/debug.o $(OBJ_DIR)/value.o | $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@
 
 $(OBJ_DIR)/chunk.o: $(SRC_DIR)/chunk.c $(SRC_DIR)/memory.h $(SRC_DIR)/chunk.h $(SRC_DIR)/value.h $(SRC_DIR)/common.h | $(OBJ_DIR)
@@ -27,7 +27,7 @@ $(OBJ_DIR)/main.o: $(SRC_DIR)/main.c $(SRC_DIR)/chunk.h $(SRC_DIR)/common.h | $(
 $(OBJ_DIR)/debug.o: $(SRC_DIR)/debug.c $(SRC_DIR)/debug.h $(SRC_DIR)/chunk.h $(SRC_DIR)/common.h | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(OBJ_DIR)/value.o: $(SRC_DIR)/value.c $(SRC_DIR)/memory.h $(SRC_DIR)/common.h | $(OBJ_DIR)
+$(OBJ_DIR)/value.o: $(SRC_DIR)/value.c $(SRC_DIR)/value.h $(SRC_DIR)/memory.h $(SRC_DIR)/common.h | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR):

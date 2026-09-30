@@ -43,16 +43,16 @@ void initLineArray(LineArray* array) {
 }
 
 int addLine(Chunk* chunk, uint8_t offset, int line) {
-    // Don't add a new LineGroup if we're still on the same line
-    if (chunk->lines.groups[chunk->lines.count].lineNum == line) {
-        return chunk->lines.count;
-    }
-
     // Ensure we have enough capacity to add new LineGroup
     if (chunk->lines.capacity < chunk->lines.count + 1) {
         int oldCapacity = chunk->lines.count;
         int newCapacity = GROW_CAPACITY(oldCapacity);
         chunk->lines.groups = GROW_ARRAY(LineGroup, chunk->lines.groups, oldCapacity, newCapacity);
+    }
+
+    // Don't add a new LineGroup if we're still on the same line
+    if (chunk->lines.groups[chunk->lines.count].lineNum == line) {
+        return chunk->lines.count;
     }
 
     LineGroup lgroup;    

@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "common.h"
+#include "memory.h"
 #include "vm.h"
 #include "debug.h"
 #include "value.h"
@@ -11,11 +12,23 @@ static void resetStack() {
     vm.stackTop = vm.stack;
 }
 
+static void initStack() {
+    vm.stackSize = STACK_START_SIZE;
+    // vm.stackCount = 0;
+    vm.stack = GROW_ARRAY(Value, vm.stack, 0, STACK_START_SIZE);
+}
+
 void initVM() {
+    initStack();
     resetStack();
 }
 
 void freeVM() {
+    FREE_ARRAY(Value, vm.stack, vm.stackSize);
+    vm.stackSize = 0;
+    // vm.stackCount = 0;
+    vm.stack = NULL;
+    vm.stackTop = NULL;
 }
 
 static inline uint32_t readLongByte() {
@@ -32,12 +45,29 @@ static inline uint32_t readLongByte() {
 }
 
 void push(Value value) {
+    // Resize the stack first, if necessary
+    if (vm.stackSize < vm.stackTop - vm.stack + 1) {
+        #ifdef DEBUG_TRACE_EXECUTION
+            printf("Resizing stack.\n");
+        #endif 
+
+        int oldCapacity = vm.stackSize;
+        int newCapacity = GROW_CAPACITY(oldCapacity);
+        int stackCount = vm.stackTop - vm.stack;
+        vm.stack = GROW_ARRAY(Value, vm.stack, oldCapacity, newCapacity);
+        // vm.stackTop = &vm.stack[vm.stackCount];
+        vm.stackTop = &vm.stack[stackCount];
+        vm.stackSize = newCapacity;
+    }
+
     *vm.stackTop = value;
     vm.stackTop++;
+    // vm.stackCount++;
 }
 
 Value pop() {
     vm.stackTop--;
+    // vm.stackCount--;
     return *vm.stackTop;
 }
 
@@ -88,7 +118,8 @@ static InterpreterResult run() {
                 break;
             }
             case OP_NEGATE: {
-                push(-pop());
+                // push(-pop());
+                *(vm.stackTop - 1) = -*(vm.stackTop - 1);
                 break;
             }
             case OP_ADD: BINARY_OP(+); break;

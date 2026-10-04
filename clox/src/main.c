@@ -68,6 +68,16 @@ int main(int argc, const char* argv[]) {
 
     writeChunk(&chunk, OP_ADD, 123);
 
+
+    for (int i = 0; i < 8; i++) {
+        constant = addConstant(&chunk, 3 + i);
+        writeChunk(&chunk, OP_CONSTANT, 123);
+        writeChunk(&chunk, constant, 123);
+    }
+
+    writeChunk(&chunk, OP_NEGATE, 123);
+
+
     // Return
     writeChunk(&chunk, OP_RETURN, 123);
 

@@ -12,7 +12,7 @@ all: $(BIN_DIR)/main
 run: $(BIN_DIR)/main
 	@./$(BIN_DIR)/main
 
-$(BIN_DIR)/main: $(OBJ_DIR)/chunk.o $(OBJ_DIR)/memory.o $(OBJ_DIR)/main.o $(OBJ_DIR)/debug.o $(OBJ_DIR)/value.o $(OBJ_DIR)/vm.o | $(BIN_DIR)
+$(BIN_DIR)/main: $(OBJ_DIR)/chunk.o $(OBJ_DIR)/memory.o $(OBJ_DIR)/main.o $(OBJ_DIR)/debug.o $(OBJ_DIR)/value.o $(OBJ_DIR)/vm.o $(OBJ_DIR)/scanner.o $(OBJ_DIR)/compiler.o | $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@
 
 $(OBJ_DIR)/chunk.o: $(SRC_DIR)/chunk.c $(SRC_DIR)/memory.h $(SRC_DIR)/chunk.h $(SRC_DIR)/value.h $(SRC_DIR)/common.h | $(OBJ_DIR)
@@ -31,6 +31,12 @@ $(OBJ_DIR)/value.o: $(SRC_DIR)/value.c $(SRC_DIR)/value.h $(SRC_DIR)/memory.h $(
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/vm.o: $(SRC_DIR)/vm.c $(SRC_DIR)/vm.h $(SRC_DIR)/value.h $(SRC_DIR)/memory.h $(SRC_DIR)/memory.h $(SRC_DIR)/common.h $(SRC_DIR)/debug.h | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/scanner.o: $(SRC_DIR)/scanner.c $(SRC_DIR)/scanner.h $(SRC_DIR)/common.h | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/compiler.o: $(SRC_DIR)/compiler.c $(SRC_DIR)/compiler.h $(SRC_DIR)/scanner.h $(SRC_DIR)/common.h | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR):

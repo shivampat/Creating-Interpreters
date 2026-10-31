@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "common.h"
 #include "compiler.h"
@@ -99,21 +100,38 @@ static void emitConstant(Value value) {
     emitBytes(OP_CONSTANT, makeConstant(value));
 }
 
-void compile(const char* source) {
-    initScanner(source);
-    int line = -1;
-    for (;;) {
-        Token token = scanToken();
+static void grouping() {
+    expression();
+    consume(TOKEN_R_PAREN, "Expect ')' after expression!");
+}
 
-        if (token.line != line) {
-            printf("%4d ", token.line);
-            line = token.line;
-        }
-        else {
-            printf("   | ");
-        }
-        printf("%2d '%.*s'\n", token.type, token.length, token.start);
+static void unary() {
+    TokenType operatorType = parser.previous.type;
 
-        if (token.type == TOKEN_EOF) break;
+    expression();
+
+    switch (operatorType) {
+        case TOKEN_MINUS: emitByte(OP_NEGATE); break;
+        default: return;
     }
+}
+
+static void number() {
+    double value = strtod(parser.previous.start, NULL);
+    emitConstant(value);
+}
+
+
+bool compile(const char* source, Chunk* chunk) {
+    initScanner();
+    compilingChunk = chunk;
+
+    parser.hadError = false;
+    parser.panicMode = false;
+
+    advance();
+    expression();
+    consume(TOKEN_EOF, "Expect end of expression!");
+    endCompiler();
+    return !parser.hasNext;
 }

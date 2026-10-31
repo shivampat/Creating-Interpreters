@@ -66,6 +66,39 @@ static void consume(TokenType type, const char* msg) {
     errorAtCurrent(msg);
 }
 
+static void emitByte(uint8_t byte) {
+    writeChunk(currentChunk(), byte, parser.previous.line);
+}
+
+static void emitReturn() {
+    emitByte(OP_RETURN);
+}
+
+static void endCompiler() {
+    emitReturn();
+}
+
+static void emitBytes(uint8_t byte1, uint8_t byte2) {
+    emitByte(byte1);
+    emitByte(byte2);
+}
+
+// TODO: add support for the OP_CONSTANT_LONG opcode we added
+static uint8_t makeConstant(Value value) {
+    int constant = addConstant(currentChunk(), value);
+    if (constant > UINT8_MAX) {
+        error("Too many constants in one chunk!");
+        return 0;
+    }
+
+    return (uint8_t) constant;
+}
+
+// TODO: prev todo
+static void emitConstant(Value value) {
+    emitBytes(OP_CONSTANT, makeConstant(value));
+}
+
 void compile(const char* source) {
     initScanner(source);
     int line = -1;

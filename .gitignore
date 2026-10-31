@@ -6,3 +6,4 @@ jlox/target/
 clox/bin/
 *.o
 clox/build/
+.DS_Store

@@ -19,6 +19,7 @@ typedef struct {
 typedef enum {
     PREC_NONE,
     PREC_ASSIGNMENT,  // =
+    PREC_TERNARY,
     PREC_OR,          // or
     PREC_AND,         // and
     PREC_EQUALITY,    // == !=
@@ -170,6 +171,13 @@ static void number() {
     emitConstant(value);
 }
 
+static void ternary() {
+    // TODO: add the jump conditions that actually make this conditional, right now it just spews bytecode for the expressions in each operand
+    parsePrecedence(PREC_TERNARY);
+    consume(TOKEN_COLON, "Expect ':' in ternary operator!");
+    parsePrecedence(PREC_TERNARY);
+}
+
 ParseRule rules[] = {
     [TOKEN_L_PAREN]       = {grouping, NULL,   PREC_NONE},
     [TOKEN_R_PAREN]       = {NULL,     NULL,   PREC_NONE},
@@ -211,6 +219,7 @@ ParseRule rules[] = {
     [TOKEN_WHILE]         = {NULL,     NULL,   PREC_NONE},
     [TOKEN_ERROR]         = {NULL,     NULL,   PREC_NONE},
     [TOKEN_EOF]           = {NULL,     NULL,   PREC_NONE},
+    [TOKEN_QUESTION_MARK] = {NULL,     ternary,   PREC_TERNARY}
 };
 
 
